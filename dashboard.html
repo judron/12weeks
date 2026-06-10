@@ -1,0 +1,341 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>לוח בקרה · תוכנית 12 השבועות · ExcelLeader</title>
+<style>
+  :root{
+    --brand:#10303E; --brand-dark:#0a2129; --brand-tint:#e3f3f2;
+    --teal:#2AA5A3;
+    --accent:#a80000; --accent-tint:#fbecec;
+    --ink:#10303E; --muted:#717171; --line:#e5e7eb;
+    --bg:#f4f6f7; --card:#ffffff;
+    --done:#16a34a; --doing:#d9822b; --todo:#9ca3af;
+    --shadow:0 1px 3px rgba(16,24,40,.06),0 6px 20px rgba(16,24,40,.05);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{font-family:"Segoe UI","Arial","Helvetica Neue",sans-serif;background:var(--bg);color:var(--ink);line-height:1.6;font-size:16px;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 16px 60px}
+
+  header.app{background:linear-gradient(135deg,var(--teal),var(--brand-dark));color:#fff;padding:20px 0;box-shadow:var(--shadow)}
+  header.app .wrap{padding-bottom:0}
+  .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+  .brand h1{margin:0;font-size:19px;font-weight:700}
+  .brand .tag{margin:0;font-size:13px;opacity:.9}
+  .topbar .right{margin-inline-start:auto;display:flex;align-items:center;gap:10px;font-size:13.5px}
+
+  .btn{font-family:inherit;font-size:14.5px;font-weight:600;border-radius:9px;padding:9px 16px;cursor:pointer;border:1px solid transparent;transition:.15s}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-white{background:#fff;color:var(--brand-dark);border-color:rgba(255,255,255,.4)}
+  .btn-ghost{background:#fff;color:var(--brand-dark);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--teal);background:var(--brand-tint)}
+  .btn-sm{padding:6px 12px;font-size:13px}
+  .btn-danger{color:#c0392b}
+  .btn-danger:hover{background:#fde8e8;border-color:#f1c0c0}
+
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:18px 0;box-shadow:var(--shadow)}
+
+  /* Gate */
+  #gate{text-align:center;padding:48px 22px}
+  #gate h2{margin:0 0 8px}
+  #gate p{color:var(--muted);margin:0 0 22px}
+  .gbtn{display:inline-flex;align-items:center;gap:10px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:11px 20px;font-size:15px;font-weight:600;cursor:pointer;color:var(--ink)}
+  .gbtn:hover{border-color:var(--teal);box-shadow:var(--shadow)}
+  .gbtn .g{width:20px;height:20px;border-radius:50%;background:conic-gradient(#ea4335 0 25%,#fbbc05 0 50%,#34a853 0 75%,#4285f4 0);display:inline-block}
+
+  .toolbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0}
+  .toolbar h2{margin:0;font-size:20px}
+  .toolbar .sp{flex:1}
+
+  .banner{background:var(--brand-tint);border:1px solid #bfe3dd;border-radius:12px;padding:14px 16px;margin:14px 0;display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .banner b{color:var(--brand-dark)}
+  .banner input{flex:1;min-width:220px;font-family:inherit;font-size:13.5px;border:1px solid var(--line);border-radius:8px;padding:8px 10px;background:#fff;color:var(--ink)}
+
+  table{width:100%;border-collapse:collapse;background:#fff;border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  thead th{background:#fafbfb;text-align:right;font-size:12.5px;color:var(--muted);font-weight:700;padding:12px 14px;border-bottom:1px solid var(--line);white-space:nowrap}
+  tbody td{padding:14px;border-bottom:1px solid var(--line);font-size:14.5px;vertical-align:middle}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:#fafdfc}
+  .cname{font-weight:700}
+  .csub{font-size:12.5px;color:var(--muted)}
+  .chip{display:inline-block;background:var(--brand-tint);color:var(--brand-dark);font-size:12.5px;font-weight:600;padding:3px 10px;border-radius:999px}
+  .chip.empty{background:#f0f1f2;color:var(--muted);font-weight:400}
+  .bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden;min-width:90px;margin-top:4px}
+  .bar > i{display:block;height:100%;background:var(--teal);border-radius:999px}
+  .actions{display:flex;gap:6px;white-space:nowrap}
+  .ico{border:1px solid var(--line);background:#fff;border-radius:8px;padding:6px 9px;cursor:pointer;font-size:14px}
+  .ico:hover{border-color:var(--teal);background:var(--brand-tint)}
+
+  .empty-state{text-align:center;color:var(--muted);padding:42px 20px}
+  .toast{position:fixed;bottom:22px;left:50%;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 18px;border-radius:10px;font-size:14px;opacity:0;transition:.2s;z-index:60}
+  .toast.show{opacity:1}
+  .warn{background:#fff7ed;border:1px solid #fed7aa;color:#9a3412;border-radius:10px;padding:10px 14px;font-size:13.5px;margin:14px 0}
+  @media (max-width:640px){
+    thead{display:none}
+    table,tbody,tr,td{display:block;width:100%}
+    tbody tr{border:1px solid var(--line);border-radius:12px;margin-bottom:12px;padding:6px}
+    tbody td{border:0;padding:8px 12px}
+    tbody td::before{content:attr(data-label);display:block;font-size:11.5px;color:var(--muted);font-weight:700}
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <div class="mark">EL</div>
+        <div>
+          <h1>לוח בקרה — תוכנית 12 השבועות</h1>
+          <p class="tag">ExcelLeader · מעקב התקדמות לקוחות</p>
+        </div>
+      </div>
+      <div class="right">
+        <span id="whoami"></span>
+        <button class="btn btn-white btn-sm" id="signOut" style="display:none">יציאה</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+
+  <!-- Sign-in gate -->
+  <div class="card" id="gate" style="display:none">
+    <h2>כניסה ללוח הבקרה</h2>
+    <p>התחברי עם חשבון הגוגל שלך כדי לראות את ההתקדמות של הלקוחות.</p>
+    <button class="gbtn" id="signIn"><span class="g"></span> כניסה עם Google</button>
+    <div id="gateMsg" class="warn" style="display:none;text-align:right"></div>
+  </div>
+
+  <!-- No-access -->
+  <div class="card" id="noaccess" style="display:none">
+    <h2>אין הרשאה</h2>
+    <p class="csub" id="noaccessMsg"></p>
+    <button class="btn btn-ghost btn-sm" id="signOut2">יציאה והתחברות מחדש</button>
+  </div>
+
+  <!-- Dashboard -->
+  <div id="app" style="display:none">
+    <div id="devWarn" class="warn" style="display:none">⚠️ מצב פיתוח: עדיין לא הוגדר מייל מנהל ולא ננעלה האבטחה. לפני שליחה ללקוחות אמיתיים — נשלים את הצעדים האלה.</div>
+
+    <div class="toolbar">
+      <h2>הלקוחות שלי</h2>
+      <span class="sp"></span>
+      <button class="btn btn-primary" id="addClient">➕ הוספת לקוח</button>
+    </div>
+
+    <div id="newClientBanner" class="banner" style="display:none">
+      <b>✓ נוצר לקוח חדש</b>
+      <span>שלחי לו את הקישור האישי:</span>
+      <input id="newClientLink" readonly onclick="this.select()">
+      <button class="btn btn-ghost btn-sm" id="copyNewLink">העתקה</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>לקוח</th>
+          <th>מיקוד</th>
+          <th>שבוע</th>
+          <th>שבועות שהושלמו</th>
+          <th>משימות</th>
+          <th>עודכן</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody id="rows"></tbody>
+    </table>
+    <div class="empty-state" id="emptyState" style="display:none">
+      עדיין אין לקוחות. לחצי על «הוספת לקוח» כדי ליצור קישור אישי ראשון.
+    </div>
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getFirestore, collection, onSnapshot, doc, setDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-auth.js";
+import { firebaseConfig, adminEmail } from "./firebase-config.js";
+
+window.__errors = [];
+window.addEventListener("error", e => window.__errors.push(String(e.message)));
+window.addEventListener("unhandledrejection", e => window.__errors.push("promise:" + e.reason));
+
+let db=null, auth=null;
+try{
+  const fb = initializeApp(firebaseConfig);
+  db = getFirestore(fb);
+  auth = getAuth(fb);
+}catch(e){ console.warn("firebase init failed", e); }
+window.__diag = { dbReady:!!db, authReady:!!auth, user:null, clients:0 };
+
+const $ = id => document.getElementById(id);
+function show(id,on){ $(id).style.display = on ? "" : "none"; }
+function toast(msg){ const t=$("toast"); t.textContent=msg; t.classList.add("show"); setTimeout(()=>t.classList.remove("show"),1800); }
+
+// ---- auth ----
+const provider = auth ? new GoogleAuthProvider() : null;
+$("signIn").addEventListener("click", async ()=>{
+  if(!auth){ return; }
+  try{ await signInWithPopup(auth, provider); }
+  catch(e){
+    const m = $("gateMsg"); m.style.display="block";
+    m.textContent = "ההתחברות נכשלה: " + (e.code||e.message) + " — ודאי שהפעלת התחברות עם Google ב-Firebase.";
+  }
+});
+$("signOut").addEventListener("click", ()=> auth && signOut(auth));
+$("signOut2").addEventListener("click", ()=> auth && signOut(auth));
+
+let unsub = null;
+if(auth){
+  onAuthStateChanged(auth, user=>{
+    window.__diag.user = user ? user.email : null;
+    if(unsub){ unsub(); unsub=null; }
+    if(!user){
+      show("gate",true); show("app",false); show("noaccess",false);
+      show("signOut",false); $("whoami").textContent="";
+      return;
+    }
+    $("whoami").textContent = user.email;
+    show("signOut",true);
+    const allowed = !adminEmail || (user.email||"").toLowerCase() === adminEmail.toLowerCase();
+    if(!allowed){
+      show("gate",false); show("app",false); show("noaccess",true);
+      $("noaccessMsg").textContent = "המשתמש " + user.email + " אינו מורשה לצפות בלוח הבקרה.";
+      return;
+    }
+    show("gate",false); show("noaccess",false); show("app",true);
+    show("devWarn", !adminEmail);
+    listenClients();
+  });
+} else {
+  show("gate",true);
+  $("gateMsg").style.display="block";
+  $("gateMsg").textContent="לא הצלחתי להתחבר ל-Firebase. בדקי את קובץ ההגדרות.";
+}
+
+// ---- clients ----
+function fmtUpdated(ts){
+  if(!ts || !ts.toDate) return "—";
+  const d=ts.toDate();
+  return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2)+"/"+String(d.getFullYear()).slice(-2)+
+    " "+("0"+d.getHours()).slice(-2)+":"+("0"+d.getMinutes()).slice(-2);
+}
+function currentWeek(startDate){
+  if(!startDate) return null;
+  const start=new Date(startDate+"T00:00:00"); if(isNaN(start.getTime())) return null;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.floor((today-start)/86400000);
+  if(diff<0) return -1;
+  const w=Math.floor(diff/7);
+  return w>11?12:w;
+}
+function clientLink(id){ return new URL("app.html?c="+encodeURIComponent(id), location.href).href; }
+
+function listenClients(){
+  if(!db) return;
+  unsub = onSnapshot(collection(db,"clients"), snap=>{
+    const arr=[];
+    snap.forEach(docSnap=> arr.push(Object.assign({id:docSnap.id}, docSnap.data())));
+    arr.sort((a,b)=>{
+      const ta=a.updatedAt&&a.updatedAt.toMillis?a.updatedAt.toMillis():0;
+      const tb=b.updatedAt&&b.updatedAt.toMillis?b.updatedAt.toMillis():0;
+      return tb-ta;
+    });
+    window.__diag.clients = arr.length;
+    renderRows(arr);
+  }, err=>{
+    console.warn("clients listen failed", err);
+    toast("שגיאה בטעינת הלקוחות: " + (err.code||err.message));
+  });
+}
+
+function renderRows(arr){
+  const tb=$("rows"); tb.innerHTML="";
+  show("emptyState", arr.length===0);
+  arr.forEach(c=>{
+    const s=c.summary||{};
+    const name = s.businessName || c.label || "(ללא שם)";
+    const owner = s.ownerName || "";
+    const focus = s.focus || "";
+    const cw = currentWeek(s.startDate);
+    let cwTxt = "—";
+    if(cw===null) cwTxt="—"; else if(cw<0) cwTxt="טרם"; else if(cw>=12) cwTxt="הסתיים"; else cwTxt=(cw+1);
+    const wd = s.weeksDone||0;
+    const pct = Math.round(wd/12*100);
+    const tt = s.tasksTotal||0, td = s.tasksDone||0;
+    const link = clientLink(c.id);
+
+    const tr=document.createElement("tr");
+    tr.innerHTML =
+      '<td data-label="לקוח"><div class="cname"></div><div class="csub"></div></td>'+
+      '<td data-label="מיקוד"></td>'+
+      '<td data-label="שבוע">'+cwTxt+'</td>'+
+      '<td data-label="שבועות שהושלמו"><div>'+wd+'/12</div><div class="bar"><i style="width:'+pct+'%"></i></div></td>'+
+      '<td data-label="משימות">'+td+'/'+tt+'</td>'+
+      '<td data-label="עודכן">'+fmtUpdated(c.updatedAt)+'</td>'+
+      '<td><div class="actions">'+
+        '<button class="ico" title="העתקת קישור">🔗</button>'+
+        '<button class="ico" title="פתיחה">↗</button>'+
+        '<button class="ico btn-danger" title="מחיקה">🗑</button>'+
+      '</div></td>';
+    tr.querySelector(".cname").textContent = name;
+    tr.querySelector(".csub").textContent = owner;
+    const focusCell = tr.children[1];
+    if(focus){ focusCell.innerHTML='<span class="chip"></span>'; focusCell.querySelector(".chip").textContent=focus; }
+    else { focusCell.innerHTML='<span class="chip empty">טרם נבחר</span>'; }
+
+    const btns = tr.querySelectorAll(".actions .ico");
+    btns[0].addEventListener("click", ()=>{ copy(link); });
+    btns[1].addEventListener("click", ()=>{ window.open(link, "_blank"); });
+    btns[2].addEventListener("click", ()=> removeClient(c.id, name));
+    tb.appendChild(tr);
+  });
+}
+
+async function copy(text){
+  try{ await navigator.clipboard.writeText(text); toast("הקישור הועתק ✓"); }
+  catch(e){ prompt("העתיקי את הקישור:", text); }
+}
+
+$("addClient").addEventListener("click", async ()=>{
+  if(!db) return;
+  const name = prompt("שם הלקוח / העסק:");
+  if(name===null) return;
+  const id = (crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.round(Math.random()*1e9))).replace(/-/g,"").slice(0,20);
+  try{
+    await setDoc(doc(db,"clients",id), {
+      label: name.trim(),
+      summary: { businessName: name.trim() },
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp()
+    });
+    const link = clientLink(id);
+    $("newClientLink").value = link;
+    show("newClientBanner", true);
+    toast("הלקוח נוצר ✓");
+  }catch(e){
+    toast("יצירת לקוח נכשלה: " + (e.code||e.message));
+  }
+});
+$("copyNewLink").addEventListener("click", ()=> copy($("newClientLink").value));
+
+async function removeClient(id, name){
+  if(!confirm("למחוק את הלקוח \""+name+"\"? כל הנתונים שלו יימחקו לצמיתות.")) return;
+  try{ await deleteDoc(doc(db,"clients",id)); toast("נמחק"); }
+  catch(e){ toast("מחיקה נכשלה: " + (e.code||e.message)); }
+}
+</script>
+</body>
+</html>

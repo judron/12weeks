@@ -1,0 +1,844 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>תוכנית 12 השבועות · יישום ומעקב</title>
+<style>
+  :root{
+    --brand:#10303E; --brand-dark:#0a2129; --brand-tint:#e3f3f2;
+    --teal:#2AA5A3;
+    --accent:#a80000; --accent-tint:#fbecec;
+    --ink:#10303E; --muted:#717171; --line:#e5e7eb;
+    --bg:#f4f6f7; --card:#ffffff;
+    --done:#16a34a; --doing:#d9822b; --todo:#9ca3af;
+    --shadow:0 1px 3px rgba(16,24,40,.06),0 6px 20px rgba(16,24,40,.05);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    font-family:"Segoe UI","Arial","Helvetica Neue",sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.65; font-size:16px;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:0 16px 80px}
+
+  header.app{
+    background:linear-gradient(135deg,var(--teal),var(--brand-dark));
+    color:#fff;padding:22px 0;box-shadow:var(--shadow);
+  }
+  header.app .wrap{padding-bottom:0;padding-top:0}
+  .brand{display:flex;align-items:center;gap:12px}
+  .brand .mark{
+    width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.16);
+    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 auto;
+  }
+  .brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.2px}
+  .brand .tag{margin:0;font-size:13px;opacity:.9;font-weight:400}
+
+  nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.02)}
+  nav.tabs .wrap{display:flex;gap:6px;padding-top:8px;padding-bottom:8px;overflow-x:auto}
+  nav.tabs button{
+    border:0;background:transparent;color:var(--muted);font-family:inherit;font-size:15px;font-weight:600;
+    padding:10px 16px;border-radius:999px;cursor:pointer;white-space:nowrap;transition:.15s;
+  }
+  nav.tabs button:hover{background:var(--brand-tint);color:var(--brand-dark)}
+  nav.tabs button.active{background:var(--brand);color:#fff}
+
+  section.view{display:none;padding-top:22px}
+  section.view.active{display:block;animation:fade .2s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 20px;margin:0 0 16px;box-shadow:var(--shadow)}
+  .card h2{margin:0 0 4px;font-size:18px;display:flex;align-items:center;gap:10px}
+  .card h2 .num{background:var(--brand-tint);color:var(--brand-dark);font-size:13px;font-weight:800;width:26px;height:26px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .card .hint{color:var(--muted);font-size:13.5px;margin:2px 0 14px}
+  .card h2 + .hint{margin-top:2px}
+
+  label.field{display:block;margin:0 0 14px}
+  label.field > span{display:block;font-weight:600;font-size:14.5px;margin-bottom:6px}
+  label.field small{color:var(--muted);font-weight:400}
+  input[type=text],input[type=number],input[type=date],textarea,select{
+    width:100%;font-family:inherit;font-size:15px;color:var(--ink);
+    border:1px solid var(--line);border-radius:9px;padding:10px 12px;background:#fff;transition:.15s;
+  }
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--teal);box-shadow:0 0 0 3px var(--brand-tint)}
+  textarea{resize:vertical;min-height:64px}
+  .row{display:flex;gap:14px;flex-wrap:wrap}
+  .row > *{flex:1 1 220px}
+
+  .choices{display:flex;flex-wrap:wrap;gap:8px}
+  .choices label{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);border-radius:999px;padding:8px 14px;cursor:pointer;font-size:14.5px;transition:.15s;background:#fff}
+  .choices label:hover{border-color:var(--teal)}
+  .choices input{accent-color:var(--teal);width:16px;height:16px}
+  .choices label:has(input:checked){background:var(--brand-tint);border-color:var(--teal);color:var(--brand-dark);font-weight:600}
+
+  .goal{border:1px dashed var(--line);border-radius:12px;padding:14px;margin-bottom:12px;background:#fcfcfd}
+  .goal .goalhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+  .goal .goalhead b{color:var(--brand-dark)}
+  .critical-pick{display:inline-flex;align-items:center;gap:7px;font-size:13.5px;color:var(--muted);cursor:pointer}
+  .critical-pick input{accent-color:var(--accent);width:15px;height:15px}
+
+  .commit{background:var(--accent-tint);border:1px solid #f0c9c9}
+  .commit .statement{font-size:16px;font-weight:600;color:var(--accent);font-style:italic;margin:0 0 14px}
+
+  .hero{display:flex;gap:18px;flex-wrap:wrap;align-items:center}
+  .ring{--p:0;flex:0 0 auto;width:128px;height:128px;border-radius:50%;
+    background:conic-gradient(var(--teal) calc(var(--p)*1%), var(--line) 0);
+    display:flex;align-items:center;justify-content:center;position:relative}
+  .ring::before{content:"";position:absolute;inset:12px;background:#fff;border-radius:50%}
+  .ring .pct{position:relative;text-align:center}
+  .ring .pct b{font-size:30px;color:var(--brand-dark);display:block;line-height:1}
+  .ring .pct small{font-size:12px;color:var(--muted)}
+  .hero .heromain{flex:1 1 240px}
+  .stat-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:8px}
+  .stat{background:var(--brand-tint);border-radius:10px;padding:10px 14px;flex:1 1 120px}
+  .stat b{display:block;font-size:20px;color:var(--brand-dark)}
+  .stat span{font-size:12.5px;color:var(--muted)}
+
+  .anchor{background:var(--brand);color:#fff;border:0}
+  .anchor h2{color:#fff}
+  .anchor .lbl{font-size:12.5px;text-transform:uppercase;letter-spacing:.5px;opacity:.85;margin-top:10px}
+  .anchor .val{font-size:16px;font-weight:600;min-height:1.4em}
+  .anchor .val.empty{opacity:.6;font-weight:400;font-style:italic}
+
+  .steps{counter-reset:s;margin:0;padding:0;list-style:none}
+  .steps li{position:relative;padding:6px 38px 6px 0;margin-bottom:4px}
+  .steps li::before{counter-increment:s;content:counter(s);position:absolute;right:0;top:5px;width:24px;height:24px;border-radius:50%;background:var(--teal);color:#fff;font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center}
+
+  details.principles{margin-top:6px}
+  details.principles summary{cursor:pointer;font-weight:600;color:var(--brand-dark);padding:6px 0}
+  details.principles ol{margin:6px 0 0;padding-inline-start:20px;color:var(--muted);font-size:14.5px}
+  details.principles li{margin-bottom:6px}
+  details.principles b{color:var(--ink)}
+
+  .weekbanner{background:var(--brand-dark);color:#fff;border-radius:var(--radius);padding:16px 18px;margin-bottom:16px}
+  .weekbanner .lbl{font-size:12px;letter-spacing:.5px;opacity:.8;text-transform:uppercase}
+  .weekbanner .focus{font-size:17px;font-weight:700}
+  .weekbanner .intent{font-size:14px;opacity:.92;margin-top:4px}
+
+  .monthdiv{display:flex;align-items:center;gap:12px;margin:22px 0 12px}
+  .monthdiv .pill{background:var(--brand);color:#fff;font-weight:700;font-size:14px;padding:5px 14px;border-radius:999px;flex:0 0 auto}
+  .monthdiv .mil{font-size:13.5px;color:var(--muted);flex:1}
+  .monthdiv .mil b{color:var(--ink)}
+
+  .week{border-right:4px solid var(--todo)}
+  .week[data-status=doing]{border-right-color:var(--doing)}
+  .week[data-status=done]{border-right-color:var(--done);background:#f6fdf8}
+  .week.current{box-shadow:0 0 0 2px var(--teal),var(--shadow)}
+  .weekhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-bottom:10px}
+  .weekhead .wt{display:flex;align-items:baseline;gap:10px}
+  .weekhead .wt b{font-size:17px}
+  .weekhead .wt .dates{font-size:13px;color:var(--muted)}
+  .weekhead .nowtag{background:var(--teal);color:#fff;font-size:11px;font-weight:700;padding:3px 9px;border-radius:999px}
+  .wstatus{font-size:14px;font-weight:600;min-width:140px;max-width:160px}
+  select.wstatus[data-status=todo]{color:var(--todo)}
+  select.wstatus[data-status=doing]{color:var(--doing)}
+  select.wstatus[data-status=done]{color:var(--done)}
+
+  .tasks{list-style:none;margin:8px 0 6px;padding:0}
+  .tasks li{display:flex;align-items:center;gap:10px;padding:7px 10px;border:1px solid var(--line);border-radius:9px;margin-bottom:6px;background:#fff}
+  .tasks li input[type=checkbox]{width:18px;height:18px;accent-color:var(--teal);flex:0 0 auto;cursor:pointer}
+  .tasks li .txt{flex:1;font-size:14.5px}
+  .tasks li.done .txt{text-decoration:line-through;color:var(--muted)}
+  .tasks li .del{border:0;background:transparent;color:var(--muted);cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;border-radius:6px}
+  .tasks li .del:hover{background:#fde8e8;color:#c0392b}
+  .addtask{display:flex;gap:8px;margin-top:4px}
+  .addtask input{flex:1}
+  .addtask button{flex:0 0 auto}
+
+  .review{background:var(--brand-tint);border:1px solid #cfe8e5;border-radius:12px;padding:16px;margin:6px 0 18px}
+  .review h3{margin:0 0 4px;color:var(--brand-dark);font-size:16px}
+  .review .hint{color:var(--muted);font-size:13px;margin-bottom:10px}
+
+  .btn{font-family:inherit;font-size:14.5px;font-weight:600;border-radius:9px;padding:9px 16px;cursor:pointer;border:1px solid transparent;transition:.15s}
+  .btn-primary{background:var(--brand);color:#fff}
+  .btn-primary:hover{background:var(--brand-dark)}
+  .btn-ghost{background:#fff;color:var(--brand-dark);border-color:var(--line)}
+  .btn-ghost:hover{border-color:var(--teal);background:var(--brand-tint)}
+  .btn-sm{padding:7px 12px;font-size:13.5px}
+
+  footer.bar{position:fixed;bottom:0;right:0;left:0;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-top:1px solid var(--line);z-index:30}
+  footer.bar .wrap{display:flex;align-items:center;gap:8px;padding:10px 16px;flex-wrap:wrap}
+  footer.bar .saved{color:var(--done);font-size:13.5px;font-weight:600;opacity:0;transition:opacity .2s}
+  footer.bar .saved.show{opacity:1}
+  footer.bar .spacer{flex:1}
+  #cloudStatus{font-size:13px;font-weight:600;white-space:nowrap}
+
+  .muted{color:var(--muted)}
+  @media (max-width:560px){
+    .ring{width:104px;height:104px}
+    .wstatus{min-width:120px}
+    footer.bar .spacer{display:none}
+  }
+
+  @media print{
+    nav.tabs,footer.bar,.no-print,header.app{display:none!important}
+    section.view{display:block!important;padding-top:0}
+    .card{box-shadow:none;border-color:#ccc;break-inside:avoid}
+    body{background:#fff}
+    .wrap{max-width:100%;padding:0}
+  }
+</style>
+</head>
+<body>
+
+<header class="app">
+  <div class="wrap">
+    <div class="brand">
+      <div class="mark">EL</div>
+      <div>
+        <h1>תוכנית 12 השבועות</h1>
+        <p class="tag">בוסטר אסטרטגי · תכנון · יישום · מעקב</p>
+      </div>
+    </div>
+  </div>
+</header>
+
+<nav class="tabs">
+  <div class="wrap">
+    <button data-tab="dash" class="active">לוח מחוונים</button>
+    <button data-tab="plan">התכנית שלי</button>
+    <button data-tab="weeks">12 השבועות</button>
+  </div>
+</nav>
+
+<div class="wrap">
+
+<!-- ============ DASHBOARD ============ -->
+<section class="view active" id="dash">
+  <div class="card">
+    <div class="hero">
+      <div class="ring" id="ring"><div class="pct"><b id="ringPct">0%</b><small>הושלם</small></div></div>
+      <div class="heromain">
+        <h2 style="margin-bottom:2px">שלום, וברוכים הבאים 👋</h2>
+        <p class="hint" id="dashHello">זהו מרחב העבודה שלך לתוכנית 12 השבועות. מתחילים בלשונית «התכנית שלי», קובעים תאריך התחלה ב«12 השבועות», ומסמנים התקדמות מדי שבוע.</p>
+        <div class="stat-row">
+          <div class="stat"><b id="stWeeks">0/12</b><span>שבועות שהושלמו</span></div>
+          <div class="stat"><b id="stTasks">0/0</b><span>משימות בוצעו</span></div>
+          <div class="stat"><b id="stNow">—</b><span>השבוע הנוכחי</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card anchor">
+    <h2>העוגן שלי</h2>
+    <div class="lbl">המיקוד שנבחר</div>
+    <div class="val empty" id="anFocus">טרם נבחר — מלאי בלשונית «התכנית שלי»</div>
+    <div class="lbl">כוונת־העל ל־12 שבועות</div>
+    <div class="val empty" id="anIntent">—</div>
+    <div class="lbl">היעד הקריטי</div>
+    <div class="val empty" id="anCritical">—</div>
+  </div>
+
+  <div class="card">
+    <h2>איך עובדים עם זה</h2>
+    <ol class="steps">
+      <li><b>בונים את התכנית</b> — בלשונית «התכנית שלי» ממלאים את כל השלבים, מבחירת המיקוד ועד היעדים ואבני הדרך.</li>
+      <li><b>קובעים תאריך התחלה</b> — בלשונית «12 השבועות», וכל שבוע מקבל את התאריכים שלו אוטומטית.</li>
+      <li><b>מבצעים ומסמנים</b> — מוסיפים משימות לכל שבוע, מסמנים מה בוצע, ובסוף כל חודש עוצרים לבדיקה.</li>
+    </ol>
+    <details class="principles">
+      <summary>עקרונות ביצוע — חשוב לקרוא</summary>
+      <ol>
+        <li><b>תכנית שלא מבוצעת – לא קיימת.</b> הערך הוא בפעולות שיבוצעו בפועל, לא בחשיבה.</li>
+        <li><b>מיקוד קודם להיקף.</b> עדיף לבצע 70% מהתכנית בעקביות, מאשר 100% על הנייר בלבד.</li>
+        <li><b>בדיקה חודשית היא חלק מהתכנית.</b> בסוף כל חודש עוצרים, בודקים, ומתאימים — בלי אשמה ובלי דרמה.</li>
+        <li><b>סימני אזהרה הם מידע, לא כישלון.</b> עיכוב או היסוס הם אות ללמידה, לא סיבה לנטוש.</li>
+        <li><b>אחריות אישית מלאה.</b> ההתחייבות לביצוע היא שלך בלבד. גם אם פספסת יום או שבוע — ממשיכים הלאה.</li>
+      </ol>
+    </details>
+  </div>
+</section>
+
+<!-- ============ PLAN ============ -->
+<section class="view" id="plan">
+  <div class="card">
+    <h2><span class="num">1</span> פרטי העסק</h2>
+    <div class="row">
+      <label class="field"><span>שם העסק</span><input type="text" data-path="business.name"></label>
+      <label class="field"><span>שם בעל/ת העסק</span><input type="text" data-path="business.owner"></label>
+    </div>
+    <div class="row">
+      <label class="field"><span>תחום פעילות</span><input type="text" data-path="business.field"></label>
+      <label class="field"><span>שירות / מוצר עיקרי כיום</span><input type="text" data-path="business.mainService"></label>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">2</span> תמונת מצב נוכחית</h2>
+    <p class="hint">כאן ועכשיו — בלי סיפור, נקודות קצרות.</p>
+    <label class="field"><span>מה עובד היום בעסק?</span><textarea data-path="current.working"></textarea></label>
+    <label class="field"><span>מה תקוע / לא עובד / שואב אנרגיה?</span><textarea data-path="current.stuck"></textarea></label>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">3</span> מוקד ה־12 שבועות</h2>
+    <p class="hint">בוחרים <b>עד 2 מוקדים</b> מרכזיים — אלה שאם נתקדם בהם, יעשו את ההבדל הכי גדול עכשיו.</p>
+    <div class="choices" id="focusChoices">
+      <label><input type="checkbox" name="focusArea" value="הכנסות"><span>הכנסות</span></label>
+      <label><input type="checkbox" name="focusArea" value="שיווק / לידים"><span>שיווק / לידים</span></label>
+      <label><input type="checkbox" name="focusArea" value="הצעת ערך / שירותים"><span>הצעת ערך / שירותים</span></label>
+      <label><input type="checkbox" name="focusArea" value="תמחור"><span>תמחור</span></label>
+      <label><input type="checkbox" name="focusArea" value="תפעול / עומס"><span>תפעול / עומס</span></label>
+      <label><input type="checkbox" name="focusArea" value="מיקוד / מיצוב"><span>מיקוד / מיצוב</span></label>
+      <label><input type="checkbox" name="focusArea" value="אחר"><span>אחר</span></label>
+    </div>
+    <label class="field" style="margin-top:12px"><span>אם «אחר» — פירוט</span><input type="text" data-path="focus.areaOther"></label>
+    <label class="field"><span>למה אלה המוקדים הנכונים עכשיו — ולא עוד חצי שנה?</span><textarea data-path="focus.whyNow"></textarea></label>
+    <label class="field"><span>מה יקרה אם לא נטפל בזה ב־12 השבועות הקרובים?</span><textarea data-path="focus.ifNot"></textarea></label>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">4</span> חסמים מרכזיים</h2>
+    <label class="field"><span>החסם העיקרי שמעכב אותי היום</span><textarea data-path="blockers.main"></textarea></label>
+    <label class="field"><span>איזה חלק מהחסם נמצא בשליטתי בתקופה הקרובה?</span><textarea data-path="blockers.inControl"></textarea></label>
+    <label class="field"><span>מה כבר ניסיתי בעבר — ולמה זה לא עבד?</span><textarea data-path="blockers.triedBefore"></textarea></label>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">5</span> כוונת־העל</h2>
+    <p class="hint">משפט אחד. לא יותר. מה יהיה נכון בעוד 12 שבועות — שלא נכון היום?</p>
+    <label class="field"><span>בעוד 12 שבועות, יהיה נכון לומר ש…</span><textarea data-path="intention"></textarea></label>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">6</span> יעדים מדידים</h2>
+    <p class="hint">עד 3 יעדים — תוצאות, לא משימות. סמני את <b>היעד הקריטי</b>: זה שבלעדיו התקופה לא נחשבת הצלחה.</p>
+    <div id="goals"></div>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">7</span> מסגרת עבודה ריאלית</h2>
+    <p class="hint">כאן תכניות מתפרקות. תהיי כנה עם עצמך.</p>
+    <label class="field"><span>שעות שבועיות שאוכל להקדיש לתכנית <small>(ריאלי)</small></span><input type="number" min="0" data-path="framework.weeklyHours"></label>
+    <label class="field"><span>על מה אצטרך לוותר / לצמצם כדי שזה יקרה?</span><textarea data-path="framework.giveUp"></textarea></label>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">8</span> פירוק לאבני דרך</h2>
+    <p class="hint">הכיוון הכללי לכל חודש. המשימות עצמן חיות בלשונית «12 השבועות».</p>
+    <label class="field"><span>שבועות 1–4</span><textarea data-path="milestones.w1_4"></textarea></label>
+    <label class="field"><span>שבועות 5–8</span><textarea data-path="milestones.w5_8"></textarea></label>
+    <label class="field"><span>שבועות 9–12</span><textarea data-path="milestones.w9_12"></textarea></label>
+  </div>
+
+  <div class="card">
+    <h2><span class="num">9</span> סיכום קצר</h2>
+    <label class="field"><span>המיקוד שנבחר</span><input type="text" data-path="summary.focus"></label>
+    <label class="field"><span>היעד הקריטי</span><input type="text" data-path="summary.criticalGoal"></label>
+    <label class="field"><span>הצעד הראשון לביצוע</span><input type="text" data-path="summary.firstStep"></label>
+  </div>
+
+  <div class="card commit">
+    <h2><span class="num">10</span> הצהרת התחייבות</h2>
+    <p class="statement">"אני מתחייב/ת לתת עדיפות למיקוד הזה ב־12 השבועות הקרובים, גם כשיעלו רעיונות אחרים שנראים דחופים או מפתים."</p>
+    <div class="row">
+      <label class="field"><span>שם</span><input type="text" data-path="commitment.name"></label>
+      <label class="field"><span>תאריך</span><input type="date" data-path="commitment.date"></label>
+    </div>
+    <label class="critical-pick"><input type="checkbox" data-path="commitment.signed"> אני מאשר/ת ומתחייב/ת לתכנית הזו</label>
+  </div>
+</section>
+
+<!-- ============ WEEKS ============ -->
+<section class="view" id="weeks">
+  <div class="weekbanner">
+    <div class="lbl">המיקוד שלי לרבעון</div>
+    <div class="focus" id="wbFocus">—</div>
+    <div class="intent" id="wbIntent"></div>
+  </div>
+
+  <div class="card no-print">
+    <label class="field" style="margin:0">
+      <span>תאריך התחלת התכנית</span>
+      <input type="date" data-path="execution.startDate" id="startDate">
+      <small class="muted">משבצים את התאריך — וכל 12 השבועות יקבלו טווח תאריכים אוטומטית.</small>
+    </label>
+  </div>
+
+  <div id="weekList"></div>
+</section>
+
+</div><!-- /wrap -->
+
+<footer class="bar no-print">
+  <div class="wrap">
+    <button class="btn btn-primary btn-sm" id="btnPrint">🖨️ הדפסה / PDF</button>
+    <button class="btn btn-ghost btn-sm" id="btnExport">⬇️ גיבוי לקובץ</button>
+    <button class="btn btn-ghost btn-sm" id="btnImport">⬆️ טעינת גיבוי</button>
+    <button class="btn btn-ghost btn-sm" id="btnReset">🗑️ איפוס</button>
+    <input type="file" id="fileInput" accept="application/json" style="display:none">
+    <span class="spacer"></span>
+    <span id="cloudStatus"></span>
+    <span class="saved" id="savedTag">נשמר ✓</span>
+  </div>
+</footer>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
+import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { firebaseConfig } from "./firebase-config.js";
+
+window.__errors = [];
+window.addEventListener("error", e => window.__errors.push(String(e.message)));
+window.addEventListener("unhandledrejection", e => window.__errors.push("promise:" + e.reason));
+
+let db = null;
+try { db = getFirestore(initializeApp(firebaseConfig)); }
+catch (e) { console.warn("firebase init failed", e); }
+const clientId = new URLSearchParams(location.search).get("c");
+window.__diag = { clientId: clientId, dbReady: !!db, cloud: "init" };
+
+const KEY = clientId ? ("el12w_" + clientId) : "el12w_local";
+const MONTHS = ["חודש 1","חודש 2","חודש 3"];
+const STATUS = {todo:"⚪ טרם התחלתי", doing:"🟠 בתהליך", done:"🟢 הושלם"};
+
+function defaultState(){
+  const weeks = [];
+  for(let i=0;i<12;i++) weeks.push({emphasis:"", status:"todo", tasks:[], note:""});
+  return {
+    meta:{version:2},
+    business:{name:"",owner:"",field:"",mainService:""},
+    current:{working:"",stuck:""},
+    focus:{areas:[],areaOther:"",whyNow:"",ifNot:""},
+    blockers:{main:"",inControl:"",triedBefore:""},
+    intention:"",
+    goals:[{desc:"",metric:"",critical:false},{desc:"",metric:"",critical:false},{desc:"",metric:"",critical:false}],
+    framework:{weeklyHours:"",giveUp:""},
+    milestones:{w1_4:"",w5_8:"",w9_12:""},
+    summary:{focus:"",criticalGoal:"",firstStep:""},
+    commitment:{name:"",date:"",signed:false},
+    execution:{
+      startDate:"",
+      weeks:weeks,
+      monthlyReviews:[{wins:"",stuck:"",adjust:""},{wins:"",stuck:"",adjust:""},{wins:"",stuck:"",adjust:""}]
+    }
+  };
+}
+
+function merge(def, saved){
+  if(Array.isArray(def)){ return Array.isArray(saved) ? saved : def; }
+  if(def && typeof def==="object"){
+    const out = {};
+    for(const k in def) out[k] = merge(def[k], saved ? saved[k] : undefined);
+    return out;
+  }
+  return (saved===undefined||saved===null) ? def : saved;
+}
+
+let state = defaultState();
+function load(){
+  try{
+    const raw = localStorage.getItem(KEY);
+    if(raw){
+      const parsed = JSON.parse(raw);
+      // migrate old single-focus field to the new up-to-2 array
+      if(parsed.focus && parsed.focus.area && !parsed.focus.areas){ parsed.focus.areas = [parsed.focus.area]; }
+      state = merge(defaultState(), parsed);
+    }
+  }
+  catch(e){ console.warn("load failed", e); }
+}
+let saveTimer=null;
+function saveLocal(){
+  try{ localStorage.setItem(KEY, JSON.stringify(state)); }
+  catch(e){ /* private mode etc. */ }
+}
+function save(){ saveLocal(); cloudSave(); }
+function flashSaved(){
+  const t=document.getElementById("savedTag"); t.classList.add("show");
+  clearTimeout(saveTimer); saveTimer=setTimeout(()=>t.classList.remove("show"),1100);
+}
+function onChange(){ save(); flashSaved(); updateWeekDates(); refreshStatuses(); renderDashboard(); renderBanner(); }
+
+function getByPath(o,p){ return p.split(".").reduce((a,k)=> (a==null?undefined:a[k]), o); }
+function setByPath(o,p,v){
+  const ks=p.split("."); let a=o;
+  for(let i=0;i<ks.length-1;i++){ a = a[ks[i]]; }
+  a[ks[ks.length-1]] = v;
+}
+
+function bindInputs(scope){
+  (scope||document).querySelectorAll("[data-path]").forEach(el=>{
+    const path = el.dataset.path;
+    const val = getByPath(state, path);
+    if(el.type==="checkbox") el.checked = !!val;
+    else if(el.type==="radio") el.checked = (String(val)===el.value);
+    else el.value = (val==null?"":val);
+    const evt = (el.tagName==="SELECT"||el.type==="checkbox"||el.type==="radio"||el.type==="date") ? "change":"input";
+    el.addEventListener(evt, ()=>{
+      let v;
+      if(el.type==="checkbox") v=el.checked;
+      else v=el.value;
+      setByPath(state, path, v);
+      onChange();
+    });
+  });
+}
+
+// ---- focus (up to 2) ----
+function focusText(){
+  return (state.focus.areas||[]).map(a=> a==="אחר" ? (state.focus.areaOther||"אחר") : a).join(" + ");
+}
+function syncFocusChoices(){
+  document.querySelectorAll('#focusChoices input[name="focusArea"]').forEach(cb=>{
+    cb.checked = (state.focus.areas||[]).includes(cb.value);
+  });
+}
+function setupFocusChoices(){
+  document.querySelectorAll('#focusChoices input[name="focusArea"]').forEach(cb=>{
+    cb.addEventListener("change", ()=>{
+      const sel = Array.from(document.querySelectorAll('#focusChoices input[name="focusArea"]:checked'));
+      if(sel.length>2){
+        cb.checked=false;
+        alert("אפשר לבחור עד 2 מוקדים. כדי לבחור אחר, בטלי קודם אחד מהקיימים.");
+        return;
+      }
+      state.focus.areas = sel.map(x=>x.value);
+      onChange();
+    });
+  });
+}
+
+function renderGoals(){
+  const wrap=document.getElementById("goals");
+  wrap.innerHTML="";
+  for(let i=0;i<3;i++){
+    const g=state.goals[i];
+    const div=document.createElement("div");
+    div.className="goal";
+    div.innerHTML=
+      '<div class="goalhead"><b>יעד '+(i+1)+(i===2?' (אם יש)':'')+'</b>'+
+      '<label class="critical-pick"><input type="radio" name="criticalGoal" value="'+i+'"'+(g.critical?' checked':'')+'> היעד הקריטי</label></div>'+
+      '<label class="field"><span>תיאור</span><input type="text" data-path="goals.'+i+'.desc"></label>'+
+      '<label class="field" style="margin-bottom:0"><span>מדד הצלחה ברור</span><input type="text" data-path="goals.'+i+'.metric"></label>';
+    wrap.appendChild(div);
+  }
+  bindInputs(wrap);
+  wrap.querySelectorAll('input[name="criticalGoal"]').forEach(r=>{
+    r.addEventListener("change",()=>{
+      const idx=parseInt(r.value,10);
+      state.goals.forEach((g,j)=> g.critical=(j===idx));
+      onChange();
+    });
+  });
+}
+
+function fmtDate(d){ return ("0"+d.getDate()).slice(-2)+"/"+("0"+(d.getMonth()+1)).slice(-2); }
+function addDays(d,n){ const x=new Date(d.getTime()); x.setDate(x.getDate()+n); return x; }
+function startDateObj(){
+  const s=state.execution.startDate;
+  if(!s) return null;
+  const d=new Date(s+"T00:00:00");
+  return isNaN(d.getTime())?null:d;
+}
+function currentWeekIndex(){
+  const start=startDateObj(); if(!start) return null;
+  const today=new Date(); today.setHours(0,0,0,0);
+  const diff=Math.floor((today-start)/86400000);
+  if(diff<0) return -1;
+  const w=Math.floor(diff/7);
+  return w>11 ? 12 : w;
+}
+
+function buildWeeks(){
+  const list=document.getElementById("weekList");
+  list.innerHTML="";
+  for(let m=0;m<3;m++){
+    const milKey = m===0?"w1_4":(m===1?"w5_8":"w9_12");
+    const div=document.createElement("div");
+    div.className="monthdiv";
+    div.innerHTML='<span class="pill">'+MONTHS[m]+'</span><span class="mil" id="mil-'+m+'"></span>';
+    div.dataset.milkey=milKey;
+    list.appendChild(div);
+
+    for(let k=0;k<4;k++){
+      const w=m*4+k;
+      const card=document.createElement("div");
+      card.className="card week";
+      card.id="week-"+w;
+      card.dataset.status=state.execution.weeks[w].status;
+      card.innerHTML=
+        '<div class="weekhead">'+
+          '<div class="wt"><b>שבוע '+(w+1)+'</b><span class="dates" id="wk-dates-'+w+'"></span><span class="nowtag" id="wk-now-'+w+'" style="display:none">השבוע</span></div>'+
+          '<select class="wstatus" data-path="execution.weeks.'+w+'.status" data-status="'+state.execution.weeks[w].status+'">'+
+            '<option value="todo">'+STATUS.todo+'</option>'+
+            '<option value="doing">'+STATUS.doing+'</option>'+
+            '<option value="done">'+STATUS.done+'</option>'+
+          '</select>'+
+        '</div>'+
+        '<label class="field"><span>מיקוד השבוע <small>(אופציונלי)</small></span><input type="text" data-path="execution.weeks.'+w+'.emphasis"></label>'+
+        '<div style="font-weight:600;font-size:14px;margin:4px 0 4px">משימות</div>'+
+        '<ul class="tasks" id="tasks-'+w+'"></ul>'+
+        '<div class="addtask"><input type="text" placeholder="הוספת משימה ל..." id="newtask-'+w+'"><button class="btn btn-ghost btn-sm" data-add="'+w+'">הוספה</button></div>'+
+        '<label class="field" style="margin-top:12px;margin-bottom:0"><span>הערות / רפלקציה</span><textarea data-path="execution.weeks.'+w+'.note"></textarea></label>';
+      list.appendChild(card);
+      renderTasks(w);
+    }
+
+    const rev=document.createElement("div");
+    rev.className="review";
+    rev.innerHTML=
+      '<h3>בדיקת '+MONTHS[m]+' — עוצרים לרגע</h3>'+
+      '<div class="hint">בלי אשמה ובלי דרמה. מה התקדם, מה נתקע, ומה מתאימים קדימה.</div>'+
+      '<label class="field"><span>מה התקדם / הושג החודש?</span><textarea data-path="execution.monthlyReviews.'+m+'.wins"></textarea></label>'+
+      '<label class="field"><span>מה נתקע או היה סימן אזהרה?</span><textarea data-path="execution.monthlyReviews.'+m+'.stuck"></textarea></label>'+
+      '<label class="field" style="margin-bottom:0"><span>איזו התאמה נעשה לחודש הבא?</span><textarea data-path="execution.monthlyReviews.'+m+'.adjust"></textarea></label>';
+    list.appendChild(rev);
+  }
+  bindInputs(list);
+  list.querySelectorAll("[data-add]").forEach(btn=>{
+    const w=parseInt(btn.dataset.add,10);
+    const input=document.getElementById("newtask-"+w);
+    const add=()=>{
+      const t=input.value.trim(); if(!t) return;
+      state.execution.weeks[w].tasks.push({text:t,done:false});
+      input.value=""; renderTasks(w); onChange(); input.focus();
+    };
+    btn.addEventListener("click",add);
+    input.addEventListener("keydown",e=>{ if(e.key==="Enter"){ e.preventDefault(); add(); }});
+  });
+}
+
+function renderTasks(w){
+  const ul=document.getElementById("tasks-"+w);
+  const tasks=state.execution.weeks[w].tasks;
+  ul.innerHTML="";
+  if(tasks.length===0){
+    const li=document.createElement("li");
+    li.style.border="0"; li.style.background="transparent"; li.style.color="var(--muted)"; li.style.fontSize="13.5px";
+    li.textContent="עדיין אין משימות לשבוע הזה.";
+    ul.appendChild(li); return;
+  }
+  tasks.forEach((task,ti)=>{
+    const li=document.createElement("li");
+    if(task.done) li.className="done";
+    const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!!task.done;
+    cb.addEventListener("change",()=>{ task.done=cb.checked; li.classList.toggle("done",cb.checked); onChange(); });
+    const span=document.createElement("span"); span.className="txt"; span.textContent=task.text;
+    const del=document.createElement("button"); del.className="del"; del.textContent="✕"; del.title="מחיקה";
+    del.addEventListener("click",()=>{ tasks.splice(ti,1); renderTasks(w); onChange(); });
+    li.appendChild(cb); li.appendChild(span); li.appendChild(del);
+    ul.appendChild(li);
+  });
+}
+
+function updateWeekDates(){
+  const start=startDateObj();
+  for(let w=0;w<12;w++){
+    const span=document.getElementById("wk-dates-"+w);
+    if(!span) continue;
+    if(start){ const s=addDays(start,w*7), e=addDays(start,w*7+6); span.textContent=fmtDate(s)+" – "+fmtDate(e); }
+    else span.textContent="";
+  }
+  document.querySelectorAll(".monthdiv").forEach(div=>{
+    const key=div.dataset.milkey; const txt=getByPath(state,"milestones."+key);
+    const el=div.querySelector(".mil");
+    el.innerHTML = txt ? '<b>אבני דרך:</b> '+escapeHtml(txt) : '<span class="muted">אבני הדרך לחודש זה — מהתכנית, שלב 8</span>';
+  });
+  const cur=currentWeekIndex();
+  for(let w=0;w<12;w++){
+    const card=document.getElementById("week-"+w); const tag=document.getElementById("wk-now-"+w);
+    if(!card) continue;
+    const isNow=(cur!==null && cur>=0 && cur<12 && cur===w);
+    card.classList.toggle("current",isNow);
+    if(tag) tag.style.display=isNow?"inline-block":"none";
+  }
+}
+
+function refreshStatuses(){
+  for(let w=0;w<12;w++){
+    const card=document.getElementById("week-"+w); if(!card) continue;
+    const st=state.execution.weeks[w].status;
+    card.dataset.status=st;
+    const sel=card.querySelector("select.wstatus"); if(sel) sel.dataset.status=st;
+  }
+}
+
+function escapeHtml(s){ return String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c])); }
+
+function renderBanner(){
+  const focus = focusText() || state.summary.focus;
+  document.getElementById("wbFocus").textContent = focus || "טרם נבחר מיקוד";
+  document.getElementById("wbIntent").textContent = state.intention || "";
+}
+
+function computeSummary(){
+  const weeks=state.execution.weeks;
+  let total=0,tdone=0;
+  weeks.forEach(w=> w.tasks.forEach(t=>{ total++; if(t.done) tdone++; }));
+  const crit = (state.goals.find(g=>g.critical)||{}).desc || state.summary.criticalGoal;
+  return {
+    businessName: state.business.name||"",
+    ownerName: state.business.owner||"",
+    focus: focusText() || state.summary.focus || "",
+    criticalGoal: crit||"",
+    intention: state.intention||"",
+    startDate: state.execution.startDate||"",
+    weeksDone: weeks.filter(w=>w.status==="done").length,
+    tasksTotal: total,
+    tasksDone: tdone
+  };
+}
+
+function renderDashboard(){
+  const weeks=state.execution.weeks;
+  const done=weeks.filter(w=>w.status==="done").length;
+  const pct=Math.round(done/12*100);
+  document.getElementById("ring").style.setProperty("--p",pct);
+  document.getElementById("ringPct").textContent=pct+"%";
+  document.getElementById("stWeeks").textContent=done+"/12";
+
+  let total=0,tdone=0;
+  weeks.forEach(w=> w.tasks.forEach(t=>{ total++; if(t.done) tdone++; }));
+  document.getElementById("stTasks").textContent=tdone+"/"+total;
+
+  const cur=currentWeekIndex();
+  let nowTxt="—";
+  if(cur===null) nowTxt="קבעי תאריך";
+  else if(cur<0) nowTxt="טרם התחיל";
+  else if(cur>=12) nowTxt="הסתיים 🎉";
+  else nowTxt="שבוע "+(cur+1);
+  document.getElementById("stNow").textContent=nowTxt;
+
+  setVal("anFocus", focusText() || state.summary.focus, "טרם נבחר — מלאי בלשונית «התכנית שלי»");
+  setVal("anIntent", state.intention, "—");
+  const crit = (state.goals.find(g=>g.critical)||{}).desc || state.summary.criticalGoal;
+  setVal("anCritical", crit, "—");
+}
+function setVal(id,val,empty){
+  const el=document.getElementById(id);
+  if(val){ el.textContent=val; el.classList.remove("empty"); }
+  else { el.textContent=empty; el.classList.add("empty"); }
+}
+
+function setupTabs(){
+  document.querySelectorAll("nav.tabs button").forEach(b=>{
+    b.addEventListener("click",()=>{
+      document.querySelectorAll("nav.tabs button").forEach(x=>x.classList.remove("active"));
+      document.querySelectorAll("section.view").forEach(x=>x.classList.remove("active"));
+      b.classList.add("active");
+      document.getElementById(b.dataset.tab).classList.add("active");
+      window.scrollTo({top:0,behavior:"smooth"});
+    });
+  });
+}
+
+function setupActions(){
+  document.getElementById("btnPrint").addEventListener("click",()=>window.print());
+  document.getElementById("btnExport").addEventListener("click",()=>{
+    const name=(state.business.name||"תוכנית").replace(/[\\/:*?"<>|]/g,"");
+    const blob=new Blob([JSON.stringify(state,null,2)],{type:"application/json"});
+    const a=document.createElement("a");
+    a.href=URL.createObjectURL(blob);
+    a.download="תוכנית-12-שבועות-"+name+".json";
+    a.click(); URL.revokeObjectURL(a.href);
+  });
+  const fi=document.getElementById("fileInput");
+  document.getElementById("btnImport").addEventListener("click",()=>fi.click());
+  fi.addEventListener("change",()=>{
+    const f=fi.files[0]; if(!f) return;
+    const rd=new FileReader();
+    rd.onload=()=>{
+      try{
+        state=merge(defaultState(), JSON.parse(rd.result));
+        save(); refreshAll();
+        alert("הגיבוי נטען בהצלחה ✓");
+      }catch(e){ alert("הקובץ אינו תקין."); }
+      fi.value="";
+    };
+    rd.readAsText(f);
+  });
+  document.getElementById("btnReset").addEventListener("click",()=>{
+    if(confirm("לאפס את כל הנתונים ולהתחיל מחדש? פעולה זו אינה הפיכה.\nמומלץ לגבות לקובץ קודם.")){
+      state=defaultState(); save(); refreshAll();
+    }
+  });
+}
+
+function refreshAll(){
+  document.querySelectorAll("#plan [data-path]").forEach(el=>{
+    const v=getByPath(state,el.dataset.path);
+    if(el.type==="checkbox") el.checked=!!v;
+    else if(el.type==="radio") el.checked=(String(v)===el.value);
+    else el.value=(v==null?"":v);
+  });
+  syncFocusChoices();
+  document.getElementById("startDate").value=state.execution.startDate||"";
+  renderGoals();
+  buildWeeks();
+  updateWeekDates(); refreshStatuses(); renderDashboard(); renderBanner();
+}
+
+// ---- Cloud sync ----
+function setCloudStatus(s){
+  const el=document.getElementById("cloudStatus"); if(!el) return;
+  const map={
+    connecting:["מתחבר…","#717171"],
+    saving:["מסנכרן…","#d9822b"],
+    saved:["☁️ נשמר בענן","#16a34a"],
+    local:["💾 מצב מקומי","#717171"],
+    error:["⚠️ אין חיבור — נשמר במכשיר","#c0392b"]
+  };
+  const v=map[s]||["",""];
+  el.textContent=v[0]; el.style.color=v[1];
+  window.__diag.cloud=s;
+}
+
+let cloudTimer=null;
+function cloudSave(){
+  if(!clientId || !db) return;
+  setCloudStatus("saving");
+  clearTimeout(cloudTimer);
+  cloudTimer=setTimeout(async ()=>{
+    try{
+      await setDoc(doc(db,"clients",clientId), {
+        state: state,
+        summary: computeSummary(),
+        updatedAt: serverTimestamp()
+      }, {merge:true});
+      setCloudStatus("saved");
+    }catch(e){ console.warn("cloud save failed", e); setCloudStatus("error"); }
+  }, 900);
+}
+
+async function cloudInit(){
+  if(!clientId){ setCloudStatus("local"); return; }
+  if(!db){ setCloudStatus("error"); return; }
+  setCloudStatus("connecting");
+  try{
+    const snap = await getDoc(doc(db,"clients",clientId));
+    if(snap.exists() && snap.data().state){
+      state = merge(defaultState(), snap.data().state);
+      saveLocal();
+      refreshAll();
+    } else {
+      await setDoc(doc(db,"clients",clientId), {
+        state: state, summary: computeSummary(),
+        createdAt: serverTimestamp(), updatedAt: serverTimestamp()
+      }, {merge:true});
+    }
+    setCloudStatus("saved");
+  }catch(e){ console.warn("cloud init failed", e); setCloudStatus("error"); }
+}
+
+// ---- init ----
+load();
+bindInputs(document.getElementById("plan"));
+bindInputs(document.getElementById("weeks"));
+setupFocusChoices();
+syncFocusChoices();
+renderGoals();
+buildWeeks();
+setupTabs();
+setupActions();
+updateWeekDates();
+refreshStatuses();
+renderDashboard();
+renderBanner();
+cloudInit();
+</script>
+</body>
+</html>
