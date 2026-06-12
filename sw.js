@@ -4,14 +4,20 @@
    - Firebase SDK -> cache-first (the gstatic URLs are versioned/immutable).
    - Same-origin   -> stale-while-revalidate (fast, refreshes in the background).
    Bump CACHE when shipping breaking changes to force a clean refresh. */
-const CACHE = "el12w-pwa-v1";
+const CACHE = "el12w-pwa-v2";
 const CORE = [
   "app.html",
+  "dashboard.html",
   "firebase-config.js",
   "manifest.webmanifest",
+  "manifest-dashboard.webmanifest",
+  "logo-white.png",
   "icon-192.png",
   "icon-512.png",
-  "apple-touch-icon.png"
+  "apple-touch-icon.png",
+  "dash-icon-192.png",
+  "dash-icon-512.png",
+  "dash-apple-touch-icon.png"
 ];
 
 self.addEventListener("install", (e) => {
@@ -42,7 +48,10 @@ self.addEventListener("fetch", (e) => {
         return await fetch(req);
       } catch (err) {
         const c = await caches.open(CACHE);
-        return (await c.match("app.html", { ignoreSearch: true })) || Response.error();
+        // serve the cached shell for the requested page (app.html or dashboard.html),
+        // ignoring query strings like ?c=; fall back to the client app shell.
+        const hit = await c.match(req, { ignoreSearch: true });
+        return hit || (await c.match("app.html", { ignoreSearch: true })) || Response.error();
       }
     })());
     return;

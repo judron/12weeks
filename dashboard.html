@@ -4,6 +4,14 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>לוח בקרה · תוכנית 12 השבועות · ExcelLeader</title>
+<link rel="icon" type="image/png" href="dash-icon-192.png">
+<link rel="manifest" href="manifest-dashboard.webmanifest">
+<meta name="theme-color" content="#10303E">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="לוח בקרה">
+<link rel="apple-touch-icon" href="dash-apple-touch-icon.png">
 <style>
   :root{
     --brand:#10303E; --brand-dark:#0a2129; --brand-tint:#e3f3f2;
@@ -24,7 +32,8 @@
   header.app .wrap{padding-bottom:0}
   .topbar{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
   .brand{display:flex;align-items:center;gap:12px}
-  .brand .mark{width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.16);display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px}
+  .brand .mark{width:46px;height:46px;display:flex;align-items:center;justify-content:center;flex:0 0 auto}
+  .brand .mark img{width:46px;height:46px;object-fit:contain;display:block}
   .brand h1{margin:0;font-size:19px;font-weight:700}
   .brand .tag{margin:0;font-size:13px;opacity:.9}
   .topbar .right{margin-inline-start:auto;display:flex;align-items:center;gap:10px;font-size:13.5px}
@@ -91,7 +100,7 @@
   <div class="wrap">
     <div class="topbar">
       <div class="brand">
-        <div class="mark">EL</div>
+        <div class="mark"><img src="logo-white.png" alt="לוגו Jude Barak ExcelLeader" width="46" height="46"></div>
         <div>
           <h1>לוח בקרה — תוכנית 12 השבועות</h1>
           <p class="tag">ExcelLeader · מעקב התקדמות לקוחות</p>
@@ -335,6 +344,13 @@ async function removeClient(id, name){
   if(!confirm("למחוק את הלקוח \""+name+"\"? כל הנתונים שלו יימחקו לצמיתות.")) return;
   try{ await deleteDoc(doc(db,"clients",id)); toast("נמחק"); }
   catch(e){ toast("מחיקה נכשלה: " + (e.code||e.message)); }
+}
+
+// ---- PWA: register service worker (installable + offline shell) ----
+if("serviceWorker" in navigator){
+  window.addEventListener("load", ()=>{
+    navigator.serviceWorker.register("sw.js").catch(e=>console.warn("sw registration failed", e));
+  });
 }
 </script>
 </body>
