@@ -158,6 +158,16 @@
   .btn-ghost:hover{border-color:var(--teal);background:var(--brand-tint)}
   .btn-sm{padding:7px 12px;font-size:13.5px}
 
+  /* voice input mic */
+  .mic-wrap{position:relative;display:block}
+  .addtask .mic-wrap{flex:1}
+  .mic-btn{position:absolute;left:8px;top:50%;transform:translateY(-50%);width:30px;height:30px;border-radius:50%;border:1px solid var(--line);background:#fff;cursor:pointer;font-size:15px;line-height:1;display:flex;align-items:center;justify-content:center;padding:0;color:var(--muted);transition:.15s;z-index:2}
+  .mic-btn:hover{border-color:var(--teal);background:var(--brand-tint)}
+  .mic-btn.mic-area{top:8px;transform:none}
+  .mic-btn.rec{background:var(--accent);border-color:var(--accent);color:#fff;animation:micpulse 1.1s infinite}
+  @keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(168,0,0,.45)}70%{box-shadow:0 0 0 8px rgba(168,0,0,0)}100%{box-shadow:0 0 0 0 rgba(168,0,0,0)}}
+  textarea.has-mic,input.has-mic{padding-left:42px!important}
+
   footer.bar{position:fixed;bottom:0;right:0;left:0;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-top:1px solid var(--line);z-index:30}
   footer.bar .wrap{display:flex;align-items:center;gap:8px;padding:10px 16px;flex-wrap:wrap}
   footer.bar .saved{color:var(--done);font-size:13.5px;font-weight:600;opacity:0;transition:opacity .2s}
@@ -769,7 +779,7 @@ function refreshAll(){
   document.getElementById("startDate").value=state.execution.startDate||"";
   renderGoals();
   buildWeeks();
-  updateWeekDates(); refreshStatuses(); renderDashboard(); renderBanner();
+  updateWeekDates(); refreshStatuses(); renderDashboard(); renderBanner(); addMicButtons();
 }
 
 // ---- Cloud sync ----
@@ -824,6 +834,52 @@ async function cloudInit(){
   }catch(e){ console.warn("cloud init failed", e); setCloudStatus("error"); }
 }
 
+// ---- voice input (speech-to-text) ----
+const SpeechRec = window.SpeechRecognition || window.webkitSpeechRecognition;
+let activeRec=null, activeMicBtn=null, micAlerted=false;
+function stopRec(){ if(activeRec){ try{activeRec.stop();}catch(e){} } }
+function toggleRec(field, btn){
+  if(!SpeechRec) return;
+  if(activeMicBtn===btn){ stopRec(); return; }
+  stopRec();
+  const rec = new SpeechRec();
+  rec.lang="he-IL"; rec.interimResults=false; rec.maxAlternatives=1; rec.continuous=false;
+  activeRec=rec; activeMicBtn=btn; btn.classList.add("rec");
+  rec.onresult=(e)=>{
+    let txt="";
+    for(let i=e.resultIndex;i<e.results.length;i++){ if(e.results[i].isFinal) txt+=e.results[i][0].transcript; }
+    txt=txt.trim();
+    if(txt){
+      const cur=field.value;
+      field.value = cur + ((cur && !/\s$/.test(cur)) ? " " : "") + txt;
+      field.dispatchEvent(new Event("input",{bubbles:true}));
+    }
+  };
+  rec.onerror=(e)=>{
+    if(e.error==="not-allowed" && !micAlerted){ micAlerted=true; alert("כדי להשתמש בהקלדה קולית יש לאשר גישה למיקרופון בדפדפן."); }
+  };
+  rec.onend=()=>{ btn.classList.remove("rec"); if(activeMicBtn===btn) activeMicBtn=null; activeRec=null; };
+  try{ rec.start(); }catch(e){ btn.classList.remove("rec"); activeRec=null; activeMicBtn=null; }
+}
+function addMicButtons(){
+  if(!SpeechRec) return; // browser without speech support: no mic shown
+  document.querySelectorAll("textarea, input[type=text]").forEach(field=>{
+    if(field.dataset.mic) return;
+    field.dataset.mic="1";
+    field.classList.add("has-mic");
+    const wrap=document.createElement("span");
+    wrap.className="mic-wrap";
+    field.parentNode.insertBefore(wrap, field);
+    wrap.appendChild(field);
+    const btn=document.createElement("button");
+    btn.type="button"; btn.className="mic-btn"; btn.textContent="🎤";
+    btn.title="הקלדה קולית"; btn.setAttribute("aria-label","הקלדה קולית");
+    if(field.tagName==="TEXTAREA") btn.classList.add("mic-area");
+    wrap.appendChild(btn);
+    btn.addEventListener("click",(e)=>{ e.preventDefault(); toggleRec(field, btn); });
+  });
+}
+
 // ---- init ----
 load();
 bindInputs(document.getElementById("plan"));
@@ -838,6 +894,7 @@ updateWeekDates();
 refreshStatuses();
 renderDashboard();
 renderBanner();
+addMicButtons();
 cloudInit();
 </script>
 </body>
