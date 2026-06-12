@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>תוכנית 12 השבועות · יישום ומעקב</title>
+<link rel="icon" type="image/png" href="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAASZSURBVFhHtVd9TFVlGOevLKeNXLrcbBVray4mhJLA2b3gBRUQLZjKrptNRCNZ0Kg5K8yhaUkxFIdTIpk6k5FayqTN6RjxR+uLPxgxhl9IKCKZJrkV5PZ0fs/7Pufew/049w/ub3t34LzPx+/5eJ/33BiahK7ePiretoMKt7yj30QXFoHf+i/Tik3lNCPBRdMS3TQ7eQn1Xx/Qu9GDRaC7r59mJhg0PSGDnkjE00076w7q3ejBIvDfo0e0bP1m07mbnYPIy7mraezhQy0RHdh64OTZ81b0KAPK0db+vd6NDmwE/hobo7gleexgiHjLt+rd6MBGAHh3d40moBaacWDolt6degQQ6Orppdgkl0UAWag+9KXenXoEEEAzZq4rtghMMwnEZxfQP/+Oa4mpRQAB4EjLGSt69TQcmxGnBdlrabtATV+fpXOXOqj38lUan5jQEsERlMDde/fpWVe2RQArVDNeuTFIFbv20kuelTxHcHKgB9IoZdKqtVTd0MQ2gyEoAaBsxx42BIMg8MxiDw3cHNa7xJHtbzpOc9Oy6PHEDO1UHV9pYnmHv+OXFwTNYkgCv3b30JOv+DIAQzWNx3gPzkEQ7/0dqmVYf4O8ZAQysxa5qbH5FNsQhCQAJx7vJisCPBe+7uVmrNpXbzmBQxh/zMwCniiDGulqH+/UeFf/I6hvL1zUXsIQABqbT1uGVGQGtf/wI60rf88WNer9QkYOVdYcoO86Oqmn/wo345sfVnHpIAN5yUZc+nIaGrnDPsISuP3HXW5GRCfONm6t5FrOSEzT0akGHf3zntayA5ccGhFy/lkpNxsXCEsAeOuDKksRC5Px2uDvPBvwPr+kzHFGIFo0oQrE4OfclEwm7Uig8+cuqxkljbVm939c30BzXs2iwVu+kxEOrZfa2YYEg7Lh8nMkgGZMzveykhhIzi+kvqvXqGLnJ1rKGchS0mteU99XTpwkRwIAHIlzzoJZ/86ffqGR0VEtERnKqj5lG5IFfH9ERKD+xEndcOqoQXnj+x/p3ciBS03ZUYEsXvNGZAQ+++Ko5VjW02lLQ3Z+KOw6cNhGIHXthsgI4Jj5O5fV8FWzlogMYkdKUFBa4UwAUT7nWmZzLAvNies7EmCm+NvBKcBHryOB7eZ0m5x+nxE3X92RoPLzOpaXUwACOOJhCbS0tvHgUQTUzIey/+03L2UpGwoHnPenFvkaGHqYjjjiMWfOt9GDv+2f3kgX5vqshR6bEoZQQq4aq3gve5hqdUdPBNgZvjNK26pr2TnkfMug49+0skwMBF5Mz+WGwOWRXfw2zUvNNJ34rlUowGlecSlPvvke+XJW2cAT+7iQLDtFW/hbAbpiR2XOoLzNpRw9E8BPstgFaj6LIVFQSxlA5DJ2kXKM4cmy+D9QX/YMJgA7yIwgRn4RISJ71D6D6HZcQP7oMK/l59NzeN+/HKKniCt7YsdYsz7g7uAmRD0g6H/tolsRJUo0ubYCGMO3AT5ARE8WopXyoAe21+wL+jOPCdx/MEbxWbkUa854RIX61TY20dDtERZyAu58HDNXYRH3j9jJKSphOzdD2iH6HyZOObk1mS+jAAAAAElFTkSuQmCC">
 <style>
   :root{
     --brand:#10303E; --brand-dark:#0a2129; --brand-tint:#e3f3f2;
@@ -29,13 +30,22 @@
     color:#fff;padding:22px 0;box-shadow:var(--shadow);
   }
   header.app .wrap{padding-bottom:0;padding-top:0}
+  header.app .wrap.headwrap{display:flex;align-items:center;justify-content:space-between;gap:12px}
   .brand{display:flex;align-items:center;gap:12px}
   .brand .mark{
-    width:42px;height:42px;border-radius:10px;background:rgba(255,255,255,.16);
-    display:flex;align-items:center;justify-content:center;font-weight:800;font-size:20px;flex:0 0 auto;
+    width:42px;height:42px;border-radius:10px;background:#fff;overflow:hidden;
+    display:flex;align-items:center;justify-content:center;flex:0 0 auto;
   }
+  .brand .mark img{width:30px;height:30px;object-fit:contain;display:block}
   .brand h1{margin:0;font-size:19px;font-weight:700;letter-spacing:.2px}
   .brand .tag{margin:0;font-size:13px;opacity:.9;font-weight:400}
+  .wa-btn{display:inline-flex;align-items:center;gap:7px;background:#25D366;color:#fff;text-decoration:none;font-weight:600;font-size:14px;padding:8px 14px;border-radius:999px;flex:0 0 auto;transition:.15s;white-space:nowrap}
+  .wa-btn:hover{background:#1ebe5d}
+  .wa-btn svg{width:18px;height:18px;flex:0 0 auto}
+  .tico{width:1.1em;height:1.1em;vertical-align:-0.18em;display:inline-block;flex:0 0 auto}
+  .btn .tico{margin-inline-end:5px;vertical-align:-0.16em}
+  .del svg{width:17px;height:17px;display:block}
+  @media (max-width:560px){ .wa-btn span{display:none} .wa-btn{padding:9px;border-radius:50%} }
 
   nav.tabs{position:sticky;top:0;z-index:20;background:#fff;border-bottom:1px solid var(--line);box-shadow:0 1px 0 rgba(0,0,0,.02)}
   nav.tabs .wrap{display:flex;gap:6px;padding-top:8px;padding-bottom:8px;overflow-x:auto}
@@ -194,14 +204,18 @@
 <body>
 
 <header class="app">
-  <div class="wrap">
+  <div class="wrap headwrap">
     <div class="brand">
-      <div class="mark">EL</div>
+      <div class="mark"><img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAASZSURBVFhHtVd9TFVlGOevLKeNXLrcbBVray4mhJLA2b3gBRUQLZjKrptNRCNZ0Kg5K8yhaUkxFIdTIpk6k5FayqTN6RjxR+uLPxgxhl9IKCKZJrkV5PZ0fs/7Pufew/049w/ub3t34LzPx+/5eJ/33BiahK7ePiretoMKt7yj30QXFoHf+i/Tik3lNCPBRdMS3TQ7eQn1Xx/Qu9GDRaC7r59mJhg0PSGDnkjE00076w7q3ejBIvDfo0e0bP1m07mbnYPIy7mraezhQy0RHdh64OTZ81b0KAPK0db+vd6NDmwE/hobo7gleexgiHjLt+rd6MBGAHh3d40moBaacWDolt6degQQ6Orppdgkl0UAWag+9KXenXoEEEAzZq4rtghMMwnEZxfQP/+Oa4mpRQAB4EjLGSt69TQcmxGnBdlrabtATV+fpXOXOqj38lUan5jQEsERlMDde/fpWVe2RQArVDNeuTFIFbv20kuelTxHcHKgB9IoZdKqtVTd0MQ2gyEoAaBsxx42BIMg8MxiDw3cHNa7xJHtbzpOc9Oy6PHEDO1UHV9pYnmHv+OXFwTNYkgCv3b30JOv+DIAQzWNx3gPzkEQ7/0dqmVYf4O8ZAQysxa5qbH5FNsQhCQAJx7vJisCPBe+7uVmrNpXbzmBQxh/zMwCniiDGulqH+/UeFf/I6hvL1zUXsIQABqbT1uGVGQGtf/wI60rf88WNer9QkYOVdYcoO86Oqmn/wo345sfVnHpIAN5yUZc+nIaGrnDPsISuP3HXW5GRCfONm6t5FrOSEzT0akGHf3zntayA5ccGhFy/lkpNxsXCEsAeOuDKksRC5Px2uDvPBvwPr+kzHFGIFo0oQrE4OfclEwm7Uig8+cuqxkljbVm939c30BzXs2iwVu+kxEOrZfa2YYEg7Lh8nMkgGZMzveykhhIzi+kvqvXqGLnJ1rKGchS0mteU99XTpwkRwIAHIlzzoJZ/86ffqGR0VEtERnKqj5lG5IFfH9ERKD+xEndcOqoQXnj+x/p3ciBS03ZUYEsXvNGZAQ+++Ko5VjW02lLQ3Z+KOw6cNhGIHXthsgI4Jj5O5fV8FWzlogMYkdKUFBa4UwAUT7nWmZzLAvNies7EmCm+NvBKcBHryOB7eZ0m5x+nxE3X92RoPLzOpaXUwACOOJhCbS0tvHgUQTUzIey/+03L2UpGwoHnPenFvkaGHqYjjjiMWfOt9GDv+2f3kgX5vqshR6bEoZQQq4aq3gve5hqdUdPBNgZvjNK26pr2TnkfMug49+0skwMBF5Mz+WGwOWRXfw2zUvNNJ34rlUowGlecSlPvvke+XJW2cAT+7iQLDtFW/hbAbpiR2XOoLzNpRw9E8BPstgFaj6LIVFQSxlA5DJ2kXKM4cmy+D9QX/YMJgA7yIwgRn4RISJ71D6D6HZcQP7oMK/l59NzeN+/HKKniCt7YsdYsz7g7uAmRD0g6H/tolsRJUo0ubYCGMO3AT5ARE8WopXyoAe21+wL+jOPCdx/MEbxWbkUa854RIX61TY20dDtERZyAu58HDNXYRH3j9jJKSphOzdD2iH6HyZOObk1mS+jAAAAAElFTkSuQmCC" alt="לוגו Jude Barak" width="30" height="30"></div>
       <div>
         <h1>תוכנית 12 השבועות</h1>
         <p class="tag">בוסטר אסטרטגי · תכנון · יישום · מעקב</p>
       </div>
     </div>
+    <a class="wa-btn" href="https://wa.me/972528117106?text=%D7%94%D7%99%D7%99%2C%20%D7%90%D7%A0%D7%99%20%D7%A4%D7%95%D7%A0%D7%94%20%D7%9E%D7%AA%D7%95%D7%9A%20%D7%90%D7%A4%D7%9C%D7%99%D7%A7%D7%A6%D7%99%D7%99%D7%AA%20%D7%AA%D7%95%D7%9B%D7%A0%D7%99%D7%AA%2012%20%D7%94%D7%A9%D7%91%D7%95%D7%A2%D7%95%D7%AA" target="_blank" rel="noopener noreferrer" aria-label="צרו קשר בוואטסאפ">
+      <svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M187.58,144.84l-32-16a8,8,0,0,0-8,.5l-14.69,9.8a40.55,40.55,0,0,1-16-16l9.8-14.69a8,8,0,0,0,.5-8l-16-32A8,8,0,0,0,104,64a40,40,0,0,0-40,40,88.1,88.1,0,0,0,88,88,40,40,0,0,0,40-40A8,8,0,0,0,187.58,144.84ZM152,176a72.08,72.08,0,0,1-72-72A24,24,0,0,1,99.29,80.46l11.48,23L101,118a8,8,0,0,0-.73,7.51,56.47,56.47,0,0,0,30.15,30.15A8,8,0,0,0,138,155l14.61-9.74,23,11.48A24,24,0,0,1,152,176ZM128,24A104,104,0,0,0,36.18,176.88L24.83,210.93a16,16,0,0,0,20.24,20.24l34.05-11.35A104,104,0,1,0,128,24Zm0,192a87.87,87.87,0,0,1-44.06-11.81,8,8,0,0,0-6.54-.67L40,216,52.47,178.6a8,8,0,0,0-.66-6.54A88,88,0,1,1,128,216Z"/></svg>
+      <span>צרו קשר</span>
+    </a>
   </div>
 </header>
 
@@ -221,7 +235,7 @@
     <div class="hero">
       <div class="ring" id="ring"><div class="pct"><b id="ringPct">0%</b><small>הושלם</small></div></div>
       <div class="heromain">
-        <h2 style="margin-bottom:2px">שלום, וברוכים הבאים 👋</h2>
+        <h2 style="margin-bottom:2px">שלום, וברוכים הבאים <svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M220.17,100,202.86,70a28,28,0,0,0-38.24-10.25,27.69,27.69,0,0,0-9,8.34L138.2,38a28,28,0,0,0-48.48,0A28,28,0,0,0,48.15,74l1.59,2.76A27.67,27.67,0,0,0,38,80.41a28,28,0,0,0-10.24,38.25l40,69.32a87.47,87.47,0,0,0,53.43,41,88.56,88.56,0,0,0,22.92,3,88,88,0,0,0,76.06-132Zm-6.66,62.64A72,72,0,0,1,81.62,180l-40-69.32a12,12,0,0,1,20.78-12L81.63,132a8,8,0,1,0,13.85-8L62,66A12,12,0,1,1,82.78,54L114,108a8,8,0,1,0,13.85-8L103.57,58h0a12,12,0,1,1,20.78-12l33.42,57.9a48,48,0,0,0-5.54,60.6,8,8,0,0,0,13.24-9A32,32,0,0,1,172.78,112a8,8,0,0,0,2.13-10.4L168.23,90A12,12,0,1,1,189,78l17.31,30A71.56,71.56,0,0,1,213.51,162.62ZM184.25,31.71A8,8,0,0,1,194,26a59.62,59.62,0,0,1,36.53,28l.33.57a8,8,0,1,1-13.85,8l-.33-.57a43.67,43.67,0,0,0-26.8-20.5A8,8,0,0,1,184.25,31.71ZM80.89,237a8,8,0,0,1-11.23,1.33A119.56,119.56,0,0,1,40.06,204a8,8,0,0,1,13.86-8,103.67,103.67,0,0,0,25.64,29.72A8,8,0,0,1,80.89,237Z"/></svg></h2>
         <p class="hint" id="dashHello">זהו מרחב העבודה שלך לתוכנית 12 השבועות. מתחילים בלשונית «התכנית שלי», קובעים תאריך התחלה ב«12 השבועות», ומסמנים התקדמות מדי שבוע.</p>
         <div class="stat-row">
           <div class="stat"><b id="stWeeks">0/12</b><span>שבועות שהושלמו</span></div>
@@ -375,14 +389,14 @@
 
 <footer class="bar no-print">
   <div class="wrap">
-    <button class="btn btn-primary btn-sm" id="btnPrint">🖨️ הדפסה / PDF</button>
-    <button class="btn btn-ghost btn-sm" id="btnExport">⬇️ גיבוי לקובץ</button>
-    <button class="btn btn-ghost btn-sm" id="btnImport">⬆️ טעינת גיבוי</button>
-    <button class="btn btn-ghost btn-sm" id="btnReset">🗑️ איפוס</button>
+    <button class="btn btn-primary btn-sm" id="btnPrint"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M214.67,72H200V40a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8V72H41.33C27.36,72,16,82.77,16,96v80a8,8,0,0,0,8,8H56v32a8,8,0,0,0,8,8H192a8,8,0,0,0,8-8V184h32a8,8,0,0,0,8-8V96C240,82.77,228.64,72,214.67,72ZM72,48H184V72H72ZM184,208H72V160H184Zm40-40H200V152a8,8,0,0,0-8-8H64a8,8,0,0,0-8,8v16H32V96c0-4.41,4.19-8,9.33-8H214.67c5.14,0,9.33,3.59,9.33,8Zm-24-52a12,12,0,1,1-12-12A12,12,0,0,1,200,116Z"/></svg>הדפסה / PDF</button>
+    <button class="btn btn-ghost btn-sm" id="btnExport"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0Zm-101.66,5.66a8,8,0,0,0,11.32,0l40-40a8,8,0,0,0-11.32-11.32L136,124.69V32a8,8,0,0,0-16,0v92.69L93.66,98.34a8,8,0,0,0-11.32,11.32Z"/></svg>גיבוי לקובץ</button>
+    <button class="btn btn-ghost btn-sm" id="btnImport"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"/></svg>טעינת גיבוי</button>
+    <button class="btn btn-ghost btn-sm" id="btnReset"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>איפוס</button>
     <input type="file" id="fileInput" accept="application/json" style="display:none">
     <span class="spacer"></span>
     <span id="cloudStatus"></span>
-    <span class="saved" id="savedTag">נשמר ✓</span>
+    <span class="saved" id="savedTag">נשמר <svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" style="margin-inline-start:2px"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></span>
   </div>
 </footer>
 
@@ -403,7 +417,7 @@ window.__diag = { clientId: clientId, dbReady: !!db, cloud: "init" };
 
 const KEY = clientId ? ("el12w_" + clientId) : "el12w_local";
 const MONTHS = ["חודש 1","חודש 2","חודש 3"];
-const STATUS = {todo:"⚪ טרם התחלתי", doing:"🟠 בתהליך", done:"🟢 הושלם"};
+const STATUS = {todo:"טרם התחלתי", doing:"בתהליך", done:"הושלם"};
 
 function defaultState(){
   const weeks = [];
@@ -628,7 +642,7 @@ function renderTasks(w){
     const cb=document.createElement("input"); cb.type="checkbox"; cb.checked=!!task.done;
     cb.addEventListener("change",()=>{ task.done=cb.checked; li.classList.toggle("done",cb.checked); onChange(); });
     const span=document.createElement("span"); span.className="txt"; span.textContent=task.text;
-    const del=document.createElement("button"); del.className="del"; del.textContent="✕"; del.title="מחיקה";
+    const del=document.createElement("button"); del.className="del"; del.innerHTML='<svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></svg>'; del.title="מחיקה"; del.setAttribute("aria-label","מחיקה");
     del.addEventListener("click",()=>{ tasks.splice(ti,1); renderTasks(w); onChange(); });
     li.appendChild(cb); li.appendChild(span); li.appendChild(del);
     ul.appendChild(li);
@@ -709,9 +723,9 @@ function renderDashboard(){
   let nowTxt="—";
   if(cur===null) nowTxt="קבעי תאריך";
   else if(cur<0) nowTxt="טרם התחיל";
-  else if(cur>=12) nowTxt="הסתיים 🎉";
+  else if(cur>=12) nowTxt='הסתיים <svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M111.49,52.63a15.8,15.8,0,0,0-26,5.77L33,202.78A15.83,15.83,0,0,0,47.76,224a16,16,0,0,0,5.46-1l144.37-52.5a15.8,15.8,0,0,0,5.78-26Zm-8.33,135.21-35-35,13.16-36.21,58.05,58.05Zm-55,20,14-38.41,24.45,24.45ZM156,168.64,87.36,100l13-35.87,91.43,91.43ZM160,72a37.8,37.8,0,0,1,3.84-15.58C169.14,45.83,179.14,40,192,40c6.7,0,11-2.29,13.65-7.21A22,22,0,0,0,208,23.94,8,8,0,0,1,224,24c0,12.86-8.52,32-32,32-6.7,0-11,2.29-13.65,7.21A22,22,0,0,0,176,72.06,8,8,0,0,1,160,72ZM136,40V16a8,8,0,0,1,16,0V40a8,8,0,0,1-16,0Zm101.66,82.34a8,8,0,1,1-11.32,11.31l-16-16a8,8,0,0,1,11.32-11.32Zm4.87-42.75-24,8a8,8,0,0,1-5.06-15.18l24-8a8,8,0,0,1,5.06,15.18Z"/></svg>';
   else nowTxt="שבוע "+(cur+1);
-  document.getElementById("stNow").textContent=nowTxt;
+  document.getElementById("stNow").innerHTML=nowTxt;
 
   setVal("anFocus", focusText() || state.summary.focus, "טרם נבחר — מלאי בלשונית «התכנית שלי»");
   setVal("anIntent", state.intention, "—");
@@ -755,7 +769,7 @@ function setupActions(){
       try{
         state=merge(defaultState(), JSON.parse(rd.result));
         save(); refreshAll();
-        alert("הגיבוי נטען בהצלחה ✓");
+        alert("הגיבוי נטען בהצלחה.");
       }catch(e){ alert("הקובץ אינו תקין."); }
       fi.value="";
     };
@@ -785,15 +799,21 @@ function refreshAll(){
 // ---- Cloud sync ----
 function setCloudStatus(s){
   const el=document.getElementById("cloudStatus"); if(!el) return;
-  const map={
-    connecting:["מתחבר…","#717171"],
-    saving:["מסנכרן…","#d9822b"],
-    saved:["☁️ נשמר בענן","#16a34a"],
-    local:["💾 מצב מקומי","#717171"],
-    error:["⚠️ אין חיבור — נשמר במכשיר","#c0392b"]
+  const ICO={
+    cloud:'<svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M160,40A88.09,88.09,0,0,0,81.29,88.67,64,64,0,1,0,72,216h88a88,88,0,0,0,0-176Zm0,160H72a48,48,0,0,1,0-96c1.1,0,2.2,0,3.29.11A88,88,0,0,0,72,128a8,8,0,0,0,16,0,72,72,0,1,1,72,72Zm37.66-93.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L144,148.69l42.34-42.35A8,8,0,0,1,197.66,106.34Z"/></svg>',
+    disk:'<svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M219.31,72,184,36.69A15.86,15.86,0,0,0,172.69,32H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V83.31A15.86,15.86,0,0,0,219.31,72ZM168,208H88V152h80Zm40,0H184V152a16,16,0,0,0-16-16H88a16,16,0,0,0-16,16v56H48V48H172.69L208,83.31ZM160,72a8,8,0,0,1-8,8H96a8,8,0,0,1,0-16h56A8,8,0,0,1,160,72Z"/></svg>',
+    warn:'<svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M236.8,188.09,149.35,36.22h0a24.76,24.76,0,0,0-42.7,0L19.2,188.09a23.51,23.51,0,0,0,0,23.72A24.35,24.35,0,0,0,40.55,224h174.9a24.35,24.35,0,0,0,21.33-12.19A23.51,23.51,0,0,0,236.8,188.09ZM222.93,203.8a8.5,8.5,0,0,1-7.48,4.2H40.55a8.5,8.5,0,0,1-7.48-4.2,7.59,7.59,0,0,1,0-7.72L120.52,44.21a8.75,8.75,0,0,1,15,0l87.45,151.87A7.59,7.59,0,0,1,222.93,203.8ZM120,144V104a8,8,0,0,1,16,0v40a8,8,0,0,1-16,0Zm20,36a12,12,0,1,1-12-12A12,12,0,0,1,140,180Z"/></svg>'
   };
-  const v=map[s]||["",""];
-  el.textContent=v[0]; el.style.color=v[1];
+  const map={
+    connecting:["","מתחבר…","#717171"],
+    saving:["","מסנכרן…","#d9822b"],
+    saved:[ICO.cloud,"נשמר בענן","#16a34a"],
+    local:[ICO.disk,"מצב מקומי","#717171"],
+    error:[ICO.warn,"אין חיבור — נשמר במכשיר","#c0392b"]
+  };
+  const v=map[s]||["","",""];
+  el.style.color=v[2];
+  el.innerHTML=(v[0]?v[0]+" ":"")+v[1];
   window.__diag.cloud=s;
 }
 
