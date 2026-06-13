@@ -185,6 +185,20 @@
   @keyframes micpulse{0%{box-shadow:0 0 0 0 rgba(168,0,0,.45)}70%{box-shadow:0 0 0 8px rgba(168,0,0,0)}100%{box-shadow:0 0 0 0 rgba(168,0,0,0)}}
   textarea.has-mic,input.has-mic{padding-left:42px!important}
 
+  /* privacy consent gate */
+  .privacy-overlay{position:fixed;inset:0;background:rgba(16,48,62,.6);backdrop-filter:blur(3px);z-index:200;display:flex;align-items:center;justify-content:center;padding:18px}
+  .privacy-box{background:#fff;max-width:560px;width:100%;border-radius:16px;box-shadow:0 20px 60px rgba(0,0,0,.32);padding:24px 24px 20px;max-height:92vh;overflow:auto}
+  .privacy-box h2{margin:0 0 8px;font-size:20px;color:var(--brand-dark);display:flex;align-items:center;gap:9px}
+  .privacy-box h2 svg{width:24px;height:24px;color:var(--teal);flex:0 0 auto}
+  .privacy-box .pp-lead{margin:0 0 14px;color:var(--muted);font-size:14.5px}
+  .privacy-box .pp-list{margin:0 0 16px;padding:0;list-style:none;display:flex;flex-direction:column;gap:11px}
+  .privacy-box .pp-list li{font-size:14.5px;line-height:1.55;padding-inline-start:24px;position:relative}
+  .privacy-box .pp-list li::before{content:"";position:absolute;inset-inline-start:0;top:8px;width:8px;height:8px;border-radius:50%;background:var(--teal)}
+  .privacy-box .pp-list b{color:var(--brand-dark)}
+  .privacy-box .pp-contact{font-size:14px;margin:0 0 4px}
+  .privacy-box .pp-more{font-size:13.5px;margin:0 0 18px}
+  .privacy-box .pp-more a,.privacy-box .pp-contact a{color:var(--teal);font-weight:600;text-decoration:none}
+  .privacy-box .privacy-accept{width:100%;padding:13px;font-size:15px}
   footer.bar{position:fixed;bottom:0;right:0;left:0;background:rgba(255,255,255,.94);backdrop-filter:blur(6px);border-top:1px solid var(--line);z-index:30}
   footer.bar .wrap{display:flex;align-items:center;gap:8px;padding:10px 16px;flex-wrap:wrap}
   footer.bar .saved{color:var(--done);font-size:13.5px;font-weight:600;opacity:0;transition:opacity .2s}
@@ -401,11 +415,28 @@
     <button class="btn btn-ghost btn-sm" id="btnImport"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M224,144v64a8,8,0,0,1-8,8H40a8,8,0,0,1-8-8V144a8,8,0,0,1,16,0v56H208V144a8,8,0,0,1,16,0ZM93.66,77.66,120,51.31V144a8,8,0,0,0,16,0V51.31l26.34,26.35a8,8,0,0,0,11.32-11.32l-40-40a8,8,0,0,0-11.32,0l-40,40A8,8,0,0,0,93.66,77.66Z"/></svg>טעינת גיבוי</button>
     <button class="btn btn-ghost btn-sm" id="btnReset"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M216,48H176V40a24,24,0,0,0-24-24H104A24,24,0,0,0,80,40v8H40a8,8,0,0,0,0,16h8V208a16,16,0,0,0,16,16H192a16,16,0,0,0,16-16V64h8a8,8,0,0,0,0-16ZM96,40a8,8,0,0,1,8-8h48a8,8,0,0,1,8,8v8H96Zm96,168H64V64H192ZM112,104v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Zm48,0v64a8,8,0,0,1-16,0V104a8,8,0,0,1,16,0Z"/></svg>איפוס</button>
     <input type="file" id="fileInput" accept="application/json" style="display:none">
+    <a class="btn btn-ghost btn-sm" href="privacy.html" target="_blank" rel="noopener" style="text-decoration:none"><svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg>פרטיות</a>
     <span class="spacer"></span>
     <span id="cloudStatus"></span>
     <span class="saved" id="savedTag">נשמר <svg class="tico" viewBox="0 0 256 256" fill="currentColor" aria-hidden="true" style="margin-inline-start:2px"><path d="M229.66,77.66l-128,128a8,8,0,0,1-11.32,0l-56-56a8,8,0,0,1,11.32-11.32L96,188.69,218.34,66.34a8,8,0,0,1,11.32,11.32Z"/></svg></span>
   </div>
 </footer>
+
+<div class="privacy-overlay" id="privacyOverlay" role="dialog" aria-modal="true" aria-labelledby="privacyTitle" style="display:none">
+  <div class="privacy-box">
+    <h2 id="privacyTitle"><svg viewBox="0 0 256 256" fill="currentColor" aria-hidden="true"><path d="M208,40H48A16,16,0,0,0,32,56v56c0,52.72,25.52,84.67,46.93,102.19,23.06,18.86,46,25.26,47,25.53a8,8,0,0,0,4.2,0c1-.27,23.91-6.67,47-25.53C198.48,196.67,224,164.72,224,112V56A16,16,0,0,0,208,40Zm0,72c0,37.07-13.66,67.16-40.6,89.42A129.3,129.3,0,0,1,128,223.62a128.25,128.25,0,0,1-38.92-21.81C61.82,179.51,48,149.3,48,112l0-56,160,0ZM82.34,141.66a8,8,0,0,1,11.32-11.32L112,148.69l50.34-50.35a8,8,0,0,1,11.32,11.32l-56,56a8,8,0,0,1-11.32,0Z"/></svg>שמירה על הפרטיות שלך</h2>
+    <p class="pp-lead">לפני שמתחילים — חשוב שתדעו מה קורה עם המידע שתמלאו כאן.</p>
+    <ul class="pp-list">
+      <li><b>מה נשמר:</b> מה שתמלאו — פרטי העסק, היעדים, המשימות וההתקדמות שלכם בתוכנית.</li>
+      <li><b>למה:</b> כדי שתוכלו לעבוד עם התוכנית, וכדי של‑ExcelLeader (ג'וד ברק) תהיה אפשרות ללוות אתכם ולראות את ההתקדמות.</li>
+      <li><b>איפה:</b> בענן מאובטח (Firebase של Google). הגישה מוגנת — רק אתם, דרך הקישור האישי שלכם, ואני.</li>
+      <li><b>הזכויות שלכם:</b> לראות, לתקן, לייצא או למחוק את המידע בכל עת — פשוט פנו אליי.</li>
+    </ul>
+    <p class="pp-contact">יצירת קשר: <a href="mailto:jude@excelleader.co.il">jude@excelleader.co.il</a></p>
+    <p class="pp-more"><a href="privacy.html" target="_blank" rel="noopener">למדיניות הפרטיות המלאה ›</a></p>
+    <button class="btn btn-primary privacy-accept" id="privacyAccept">הבנתי, אני מאשר/ת ומסכים/ה</button>
+  </div>
+</div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
@@ -434,6 +465,7 @@ function defaultState(){
   for(let i=0;i<12;i++) weeks.push({emphasis:"", status:"todo", tasks:[], note:""});
   return {
     meta:{version:2},
+    privacy:{consented:false,at:"",version:0},
     business:{name:"",owner:"",field:"",mainService:""},
     current:{working:"",stuck:""},
     focus:{areas:[],areaOther:"",whyNow:"",ifNot:""},
@@ -803,7 +835,7 @@ function refreshAll(){
   document.getElementById("startDate").value=state.execution.startDate||"";
   renderGoals();
   buildWeeks();
-  updateWeekDates(); refreshStatuses(); renderDashboard(); renderBanner(); addMicButtons();
+  updateWeekDates(); refreshStatuses(); renderDashboard(); renderBanner(); addMicButtons(); evaluatePrivacyGate();
 }
 
 // ---- Cloud sync ----
@@ -910,6 +942,19 @@ function addMicButtons(){
   });
 }
 
+// ---- privacy consent gate ----
+const PRIVACY_VERSION = 1;
+function privacyConsented(){ return !!(state.privacy && state.privacy.consented && (state.privacy.version||0) >= PRIVACY_VERSION); }
+function evaluatePrivacyGate(){
+  const ov = document.getElementById("privacyOverlay");
+  if(ov) ov.style.display = privacyConsented() ? "none" : "flex";
+}
+document.getElementById("privacyAccept").addEventListener("click", ()=>{
+  state.privacy = { consented:true, at:new Date().toISOString(), version:PRIVACY_VERSION };
+  save();
+  evaluatePrivacyGate();
+});
+
 // ---- init ----
 load();
 bindInputs(document.getElementById("plan"));
@@ -925,6 +970,7 @@ refreshStatuses();
 renderDashboard();
 renderBanner();
 addMicButtons();
+evaluatePrivacyGate();
 cloudInit();
 
 // ---- PWA: register service worker (installable + offline shell) ----

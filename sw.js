@@ -4,10 +4,11 @@
    - Firebase SDK -> cache-first (the gstatic URLs are versioned/immutable).
    - Same-origin   -> stale-while-revalidate (fast, refreshes in the background).
    Bump CACHE when shipping breaking changes to force a clean refresh. */
-const CACHE = "el12w-pwa-v2";
+const CACHE = "el12w-pwa-v3";
 const CORE = [
   "app.html",
   "dashboard.html",
+  "privacy.html",
   "firebase-config.js",
   "manifest.webmanifest",
   "manifest-dashboard.webmanifest",
