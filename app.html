@@ -294,6 +294,10 @@
         <li><b>אחריות אישית מלאה.</b> ההתחייבות לביצוע היא שלך בלבד. גם אם פספסת יום או שבוע — ממשיכים הלאה.</li>
       </ol>
     </details>
+    <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
+      <b>עובדים גם מהמחשב?</b> <span class="muted">הכול מסתנכרן בין המכשירים — פתחו שם את הקישור האישי שלכם.</span>
+      <div><button class="btn btn-ghost btn-sm" id="btnMyLink2" style="margin-top:8px">קבלת הקישור האישי שלי</button></div>
+    </div>
   </div>
 </section>
 
@@ -442,6 +446,19 @@
       <div id="regMsg" style="color:var(--accent);font-size:13px;min-height:1.1em;margin-bottom:10px"></div>
     </div>
     <button class="btn btn-primary privacy-accept" id="privacyAccept">אני מאשר/ת ומתחיל/ה</button>
+  </div>
+</div>
+
+<div class="privacy-overlay" id="linkOverlay" role="dialog" aria-modal="true" style="display:none">
+  <div class="privacy-box">
+    <h2>הקישור האישי שלי</h2>
+    <p class="pp-lead">כדי לעבוד מהמחשב (או כל מכשיר אחר), פִּתחו שם את הקישור הזה. הכול מסתנכרן אוטומטית — מה שממלאים בטלפון מופיע במחשב ולהפך.</p>
+    <input type="text" id="myLinkInput" readonly onclick="this.select()" style="width:100%;font-size:13px;direction:ltr;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:14px">
+    <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button class="btn btn-primary" id="copyMyLink">העתקת הקישור</button>
+      <button class="btn btn-ghost" id="emailMyLink">שליחה למייל שלי</button>
+      <button class="btn btn-ghost" id="closeLink" style="margin-inline-start:auto">סגירה</button>
+    </div>
   </div>
 </div>
 
@@ -982,6 +999,24 @@ document.getElementById("privacyAccept").addEventListener("click", ()=>{
   renderDashboard();
   evaluatePrivacyGate();
 });
+
+// ---- "my link" — open your workspace on another device (e.g. the computer) ----
+(function(){
+  const myLink = location.origin + location.pathname + "?c=" + encodeURIComponent(clientId);
+  function openLink(){ document.getElementById("myLinkInput").value = myLink; document.getElementById("linkOverlay").style.display = "flex"; }
+  const b2=document.getElementById("btnMyLink2"); if(b2) b2.addEventListener("click", openLink);
+  document.getElementById("closeLink").addEventListener("click", ()=>{ document.getElementById("linkOverlay").style.display="none"; });
+  document.getElementById("copyMyLink").addEventListener("click", async (e)=>{
+    try{ await navigator.clipboard.writeText(myLink); e.target.textContent="הועתק ✓"; setTimeout(()=>{e.target.textContent="העתקת הקישור";},1500); }
+    catch(err){ document.getElementById("myLinkInput").select(); }
+  });
+  document.getElementById("emailMyLink").addEventListener("click", ()=>{
+    const email=(state.registration&&state.registration.email)||"";
+    const subject=encodeURIComponent("הקישור שלי לתוכנית 12 השבועות");
+    const body=encodeURIComponent("זהו הקישור האישי שלי לתוכנית 12 השבועות. אפשר לפתוח אותו מכל מכשיר (מחשב או טלפון) והכול מסתנכרן:\n\n"+myLink);
+    location.href="mailto:"+email+"?subject="+subject+"&body="+body;
+  });
+})();
 
 // ---- init ----
 load();
