@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>קוד QR — הרשמה לתוכנית 12 השבועות</title>
+<style>
+  :root{--navy:#10303E;--teal:#2AA5A3;--muted:#717171;--line:#e5e7eb}
+  *{box-sizing:border-box}
+  body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;
+    background:linear-gradient(135deg,var(--teal),var(--navy));
+    font-family:"Segoe UI","Arial",sans-serif;color:var(--navy);padding:24px}
+  .card{background:#fff;border-radius:22px;box-shadow:0 24px 70px rgba(0,0,0,.3);
+    padding:34px 34px 28px;max-width:460px;width:100%;text-align:center}
+  h1{margin:0 0 4px;font-size:26px}
+  .sub{margin:0 0 22px;color:var(--muted);font-size:15px}
+  #qrbox{display:inline-flex;align-items:center;justify-content:center;padding:16px;border:1px solid var(--line);border-radius:16px;background:#fff;min-width:200px;min-height:120px}
+  #qrbox canvas,#qrbox img{display:block}
+  .url{direction:ltr;font-size:12.5px;color:var(--muted);word-break:break-all;margin:16px 0 6px}
+  .hint{font-size:14.5px;color:var(--navy);margin:14px 0 20px;line-height:1.6}
+  .hint b{color:var(--teal)}
+  button{font-family:inherit;font-size:15px;font-weight:700;color:#fff;background:var(--navy);
+    border:0;border-radius:11px;padding:12px 22px;cursor:pointer;transition:.15s}
+  button:hover{background:#0a2129}
+  .foot{margin-top:18px;font-size:12.5px;color:var(--muted)}
+</style>
+</head>
+<body>
+  <div class="card">
+    <h1>סרקו כדי להתחיל 📱</h1>
+    <p class="sub">תוכנית 12 השבועות · ExcelLeader</p>
+    <div id="qrbox">טוען…</div>
+    <p class="url" id="url"></p>
+    <p class="hint">סורקים עם מצלמת הטלפון → <b>נרשמים בקצרה</b> → ומקבלים מרחב עבודה אישי לתוכנית — <b>מתנה, בחינם.</b></p>
+    <button id="dl">⬇️ הורדת הקוד (PNG)</button>
+    <p class="foot">אפשר להגדיל את התמונה לשקופית, או להדפיס אותה.</p>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script>
+  <script>
+    var url = new URL('app.html', location.href).href;
+    document.getElementById('url').textContent = url;
+    var box = document.getElementById('qrbox');
+    if(typeof QRCode === 'undefined'){
+      box.textContent = 'לא ניתן היה לטעון את מחולל ה-QR. הקישור למטה עדיין תקין.';
+    } else {
+      box.textContent = '';
+      new QRCode(box, { text:url, width:300, height:300,
+        colorDark:'#10303E', colorLight:'#ffffff', correctLevel:QRCode.CorrectLevel.M });
+      window.__qrReady = true;
+    }
+    document.getElementById('dl').addEventListener('click', function(){
+      var c = box.querySelector('canvas');
+      var img = box.querySelector('img');
+      var data = c ? c.toDataURL('image/png') : (img ? img.src : null);
+      if(!data){ alert('צלמי מסך של הקוד במקום.'); return; }
+      var a=document.createElement('a'); a.href=data; a.download='QR-12weeks.png'; a.click();
+    });
+  </script>
+</body>
+</html>

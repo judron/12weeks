@@ -434,7 +434,14 @@
     </ul>
     <p class="pp-contact">יצירת קשר: <a href="mailto:jude@excelleader.co.il">jude@excelleader.co.il</a></p>
     <p class="pp-more"><a href="privacy.html" target="_blank" rel="noopener">למדיניות הפרטיות המלאה ›</a></p>
-    <button class="btn btn-primary privacy-accept" id="privacyAccept">הבנתי, אני מאשר/ת ומסכים/ה</button>
+    <div class="pp-reg">
+      <p style="font-weight:600;color:var(--brand-dark);margin:6px 0 10px">רגע לפני שמתחילים — הרשמה קצרה:</p>
+      <label class="field"><span>שם מלא</span><input type="text" id="regName" autocomplete="name"></label>
+      <label class="field"><span>אימייל</span><input type="text" inputmode="email" id="regEmail" autocomplete="email"></label>
+      <label class="field" style="margin-bottom:8px"><span>טלפון <small>(לא חובה)</small></span><input type="text" inputmode="tel" id="regPhone" autocomplete="tel"></label>
+      <div id="regMsg" style="color:var(--accent);font-size:13px;min-height:1.1em;margin-bottom:10px"></div>
+    </div>
+    <button class="btn btn-primary privacy-accept" id="privacyAccept">אני מאשר/ת ומתחיל/ה</button>
   </div>
 </div>
 
@@ -453,7 +460,15 @@ catch (e) { console.warn("firebase init failed", e); }
 let clientId = new URLSearchParams(location.search).get("c");
 // PWA: remember the last client id, so an installed app (whose start_url has no ?c=) reopens the right plan
 if(clientId){ try{ localStorage.setItem("el12w_lastClient", clientId); }catch(e){} }
-else { try{ const last=localStorage.getItem("el12w_lastClient"); if(last){ clientId=last; history.replaceState(null,"", location.pathname+"?c="+encodeURIComponent(last)); } }catch(e){} }
+else {
+  try{ const last=localStorage.getItem("el12w_lastClient"); if(last) clientId=last; }catch(e){}
+  if(!clientId){
+    // brand-new visitor (e.g. scanned the QR at a talk): auto-create a private workspace
+    clientId = (crypto.randomUUID ? crypto.randomUUID() : (Date.now()+"-"+Math.round(Math.random()*1e9))).replace(/-/g,"").slice(0,20);
+    try{ localStorage.setItem("el12w_lastClient", clientId); }catch(e){}
+  }
+  history.replaceState(null,"", location.pathname+"?c="+encodeURIComponent(clientId));
+}
 window.__diag = { clientId: clientId, dbReady: !!db, cloud: "init" };
 
 const KEY = clientId ? ("el12w_" + clientId) : "el12w_local";
@@ -466,6 +481,7 @@ function defaultState(){
   return {
     meta:{version:2},
     privacy:{consented:false,at:"",version:0},
+    registration:{name:"",email:"",phone:""},
     business:{name:"",owner:"",field:"",mainService:""},
     current:{working:"",stuck:""},
     focus:{areas:[],areaOther:"",whyNow:"",ifNot:""},
@@ -738,7 +754,9 @@ function computeSummary(){
   const crit = (state.goals.find(g=>g.critical)||{}).desc || state.summary.criticalGoal;
   return {
     businessName: state.business.name||"",
-    ownerName: state.business.owner||"",
+    ownerName: state.business.owner || (state.registration&&state.registration.name) || "",
+    email: (state.registration&&state.registration.email)||"",
+    phone: (state.registration&&state.registration.phone)||"",
     focus: focusText() || state.summary.focus || "",
     criticalGoal: crit||"",
     intention: state.intention||"",
@@ -927,6 +945,7 @@ function addMicButtons(){
   if(!SpeechRec) return; // browser without speech support: no mic shown
   document.querySelectorAll("textarea, input[type=text]").forEach(field=>{
     if(field.dataset.mic) return;
+    if(field.closest("#privacyOverlay")) return; // no mic on the registration/consent form
     field.dataset.mic="1";
     field.classList.add("has-mic");
     const wrap=document.createElement("span");
@@ -950,8 +969,17 @@ function evaluatePrivacyGate(){
   if(ov) ov.style.display = privacyConsented() ? "none" : "flex";
 }
 document.getElementById("privacyAccept").addEventListener("click", ()=>{
+  const name=(document.getElementById("regName").value||"").trim();
+  const email=(document.getElementById("regEmail").value||"").trim();
+  const phone=(document.getElementById("regPhone").value||"").trim();
+  const msg=document.getElementById("regMsg");
+  if(!name){ if(msg) msg.textContent="נא למלא שם."; return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ if(msg) msg.textContent="נא למלא כתובת אימייל תקינה."; return; }
+  state.registration = { name:name, email:email, phone:phone };
+  if(!state.business.owner) state.business.owner = name;
   state.privacy = { consented:true, at:new Date().toISOString(), version:PRIVACY_VERSION };
   save();
+  renderDashboard();
   evaluatePrivacyGate();
 });
 
