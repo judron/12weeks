@@ -295,8 +295,8 @@
       </ol>
     </details>
     <div style="margin-top:14px;padding-top:14px;border-top:1px solid var(--line)">
-      <b>עובדים גם מהמחשב?</b> <span class="muted">הכול מסתנכרן בין המכשירים — פתחו שם את הקישור האישי שלכם.</span>
-      <div><button class="btn btn-ghost btn-sm" id="btnMyLink2" style="margin-top:8px">קבלת הקישור האישי שלי</button></div>
+      <b>עובדים גם מהמחשב?</b> <span class="muted">נשלח לכם את הקישור האישי למייל — פותחים אותו במחשב, והכול מסתנכרן.</span>
+      <div><button class="btn btn-ghost btn-sm" id="btnMyLink2" style="margin-top:8px">אני רוצה להמשיך במחשב</button></div>
     </div>
   </div>
 </section>
@@ -451,12 +451,11 @@
 
 <div class="privacy-overlay" id="linkOverlay" role="dialog" aria-modal="true" style="display:none">
   <div class="privacy-box">
-    <h2>הקישור האישי שלי</h2>
-    <p class="pp-lead">כדי לעבוד מהמחשב (או כל מכשיר אחר), פִּתחו שם את הקישור הזה. הכול מסתנכרן אוטומטית — מה שממלאים בטלפון מופיע במחשב ולהפך.</p>
+    <h2 id="linkTitle">הקישור נשלח למייל שלך ✓</h2>
+    <p class="pp-lead" id="linkMsg"></p>
     <input type="text" id="myLinkInput" readonly onclick="this.select()" style="width:100%;font-size:13px;direction:ltr;border:1px solid var(--line);border-radius:9px;padding:10px 12px;margin-bottom:14px">
     <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
       <button class="btn btn-primary" id="copyMyLink">העתקת הקישור</button>
-      <button class="btn btn-ghost" id="emailMyLink">שליחה למייל שלי</button>
       <button class="btn btn-ghost" id="closeLink" style="margin-inline-start:auto">סגירה</button>
     </div>
   </div>
@@ -465,14 +464,15 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-app.js";
 import { getFirestore, doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-firestore.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/11.6.0/firebase-functions.js";
 import { firebaseConfig } from "./firebase-config.js";
 
 window.__errors = [];
 window.addEventListener("error", e => window.__errors.push(String(e.message)));
 window.addEventListener("unhandledrejection", e => window.__errors.push("promise:" + e.reason));
 
-let db = null;
-try { db = getFirestore(initializeApp(firebaseConfig)); }
+let db = null, fbFunctions = null;
+try { const fbApp = initializeApp(firebaseConfig); db = getFirestore(fbApp); fbFunctions = getFunctions(fbApp, "us-central1"); }
 catch (e) { console.warn("firebase init failed", e); }
 let clientId = new URLSearchParams(location.search).get("c");
 // PWA: remember the last client id, so an installed app (whose start_url has no ?c=) reopens the right plan
@@ -1000,21 +1000,44 @@ document.getElementById("privacyAccept").addEventListener("click", ()=>{
   evaluatePrivacyGate();
 });
 
-// ---- "my link" — open your workspace on another device (e.g. the computer) ----
+// ---- "continue on computer" — email the personal link (Cloud Function), with copy fallback ----
 (function(){
   const myLink = location.origin + location.pathname + "?c=" + encodeURIComponent(clientId);
-  function openLink(){ document.getElementById("myLinkInput").value = myLink; document.getElementById("linkOverlay").style.display = "flex"; }
-  const b2=document.getElementById("btnMyLink2"); if(b2) b2.addEventListener("click", openLink);
-  document.getElementById("closeLink").addEventListener("click", ()=>{ document.getElementById("linkOverlay").style.display="none"; });
+  const overlay = document.getElementById("linkOverlay");
+  const titleEl = document.getElementById("linkTitle");
+  const msgEl = document.getElementById("linkMsg");
+  const input = document.getElementById("myLinkInput");
+  const btn = document.getElementById("btnMyLink2");
+  input.value = myLink;
+
+  function showModal(title, msg){ titleEl.textContent = title; msgEl.textContent = msg; overlay.style.display = "flex"; }
+
+  async function sendLink(){
+    if(!btn) return;
+    const orig = btn.textContent;
+    btn.disabled = true; btn.textContent = "שולח…";
+    try{
+      if(!fbFunctions) throw new Error("no-functions");
+      const res = await httpsCallable(fbFunctions, "sendMyLink")({ clientId: clientId });
+      const email = (res && res.data && res.data.email) || (state.registration && state.registration.email) || "המייל שלך";
+      showModal("הקישור נשלח למייל שלך ✓", "שלחנו את הקישור האישי לכתובת " + email + ". פִּתחי אותו מהמחשב — הכל מסתנכרן. לא רואים? בדקו גם בתיקיית הספאם. אפשר גם להעתיק את הקישור כאן:");
+    }catch(err){
+      console.warn("send link failed", err);
+      const code = ((err && err.code) || "") + "";
+      if(code.indexOf("resource-exhausted") >= 0){
+        showModal("כבר נשלח ✓", "שלחנו לך קישור ממש עכשיו — בדקו את המייל (וגם בספאם). אפשר גם להעתיק כאן:");
+      } else {
+        showModal("הנה הקישור האישי שלך", "לא הצלחנו לשלוח מייל אוטומטי כרגע. העתיקו את הקישור ופִתחו אותו מהמחשב — הכל מסתנכרן:");
+      }
+    }finally{
+      btn.disabled = false; btn.textContent = orig;
+    }
+  }
+  if(btn) btn.addEventListener("click", sendLink);
+  document.getElementById("closeLink").addEventListener("click", ()=>{ overlay.style.display="none"; });
   document.getElementById("copyMyLink").addEventListener("click", async (e)=>{
     try{ await navigator.clipboard.writeText(myLink); e.target.textContent="הועתק ✓"; setTimeout(()=>{e.target.textContent="העתקת הקישור";},1500); }
-    catch(err){ document.getElementById("myLinkInput").select(); }
-  });
-  document.getElementById("emailMyLink").addEventListener("click", ()=>{
-    const email=(state.registration&&state.registration.email)||"";
-    const subject=encodeURIComponent("הקישור שלי לתוכנית 12 השבועות");
-    const body=encodeURIComponent("זהו הקישור האישי שלי לתוכנית 12 השבועות. אפשר לפתוח אותו מכל מכשיר (מחשב או טלפון) והכול מסתנכרן:\n\n"+myLink);
-    location.href="mailto:"+email+"?subject="+subject+"&body="+body;
+    catch(err){ input.select(); }
   });
 })();
 
